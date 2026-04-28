@@ -3,196 +3,764 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ARIA — Secrétaire Personnelle</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>ARIA — Advanced Reconnaissance & Intelligence Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:#0d0d0f;--bg2:#141416;--bg3:#1a1a1e;
-  --surface:#1e1e24;--surface2:#25252d;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
-  --accent:#c8b89a;--accent2:#e8d5b7;--accent-glow:rgba(200,184,154,0.15);
-  --text:#e8e6e1;--text2:#9b9890;--text3:#5c5a56;
-  --red:#e07070;--green:#7ec8a0;--blue:#7aaddc;--purple:#a98fd4;
+  --bg: #010a14;
+  --bg2: #020d1c;
+  --bg3: #031526;
+  --surface: rgba(0,180,255,0.04);
+  --surface2: rgba(0,180,255,0.08);
+  --cyan: #00b4ff;
+  --cyan2: #00e5ff;
+  --cyan3: #7ee8ff;
+  --cyan-dim: rgba(0,180,255,0.15);
+  --cyan-glow: rgba(0,180,255,0.3);
+  --gold: #ffa500;
+  --gold2: #ffcc44;
+  --red: #ff3b3b;
+  --green: #00ff9d;
+  --text: #c8eeff;
+  --text2: #5a9bb8;
+  --text3: #2a5570;
+  --border: rgba(0,180,255,0.15);
+  --border2: rgba(0,180,255,0.3);
+  --glow: 0 0 20px rgba(0,180,255,0.4);
+  --glow2: 0 0 40px rgba(0,180,255,0.2);
 }
-[data-theme="light"] {
-  --bg:#f5f3ef;--bg2:#eeebe5;--bg3:#e8e4dc;
-  --surface:#ffffff;--surface2:#f0ede8;
-  --border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.12);
-  --accent:#8a7355;--accent2:#5c4a30;--accent-glow:rgba(138,115,85,0.1);
-  --text:#1a1814;--text2:#5a5650;--text3:#9a9690;
-  --red:#c0392b;--green:#27ae60;--blue:#2980b9;--purple:#8e44ad;
+
+body {
+  font-family: 'Exo 2', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  position: relative;
 }
 
-body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;overflow:hidden;transition:background .3s,color .3s;}
+/* ── BACKGROUND GRID ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,180,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,180,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
 
-.sidebar{width:260px;min-width:260px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:background .3s;}
-.sidebar-header{padding:22px 18px 14px;border-bottom:1px solid var(--border);}
-.logo{font-family:'DM Serif Display',serif;font-size:24px;letter-spacing:.04em;color:var(--accent2);line-height:1;}
-.logo span{font-style:italic;color:var(--accent);}
-.logo-sub{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);margin-top:3px;font-weight:500;}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(0,100,180,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
 
-.user-pill{display:flex;align-items:center;gap:8px;padding:9px 10px;margin:10px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--border2);cursor:pointer;transition:all .15s;}
-.user-pill:hover{border-color:var(--accent);}
-.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent-glow);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--accent2);font-weight:600;flex-shrink:0;}
-.user-name{font-size:12px;font-weight:500;color:var(--text);}
-.user-lang{font-size:10px;color:var(--text3);}
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: linear-gradient(180deg, rgba(0,20,40,0.95) 0%, rgba(1,10,20,0.98) 100%);
+  border-right: 1px solid var(--border2);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 10;
+  box-shadow: 4px 0 30px rgba(0,180,255,0.1);
+}
 
-.sidebar-section{padding:12px 12px 6px;}
-.sidebar-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);padding:0 8px;margin-bottom:6px;font-weight:600;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:all .15s;color:var(--text2);font-size:13px;margin-bottom:1px;}
-.nav-item:hover{background:var(--surface);color:var(--text);}
-.nav-item.active{background:var(--accent-glow);color:var(--accent2);}
-.nav-item .icon{width:16px;text-align:center;font-size:14px;}
+/* Scan line animation */
+.sidebar::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  animation: scanline 4s linear infinite;
+  z-index: 1;
+  opacity: 0.6;
+}
 
-.task-list{padding:0 12px 8px;flex:1;overflow-y:auto;}
-.task-list::-webkit-scrollbar{width:3px;}
-.task-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-.task-item{display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:8px;margin-bottom:2px;cursor:pointer;transition:background .15s;font-size:12px;}
-.task-item:hover{background:var(--surface);}
-.task-check{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;margin-top:1px;transition:all .2s;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8px;}
-.task-check.done{background:var(--green);border-color:var(--green);color:#0d0d0f;}
-.task-text{color:var(--text2);line-height:1.4;flex:1;}
-.task-text.done{text-decoration:line-through;color:var(--text3);}
-.task-tag{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600;letter-spacing:.05em;flex-shrink:0;}
-.tag-urgent{background:rgba(224,112,112,.15);color:var(--red);}
-.tag-perso{background:rgba(169,143,212,.15);color:var(--purple);}
-.tag-work{background:rgba(122,173,220,.15);color:var(--blue);}
-.add-task-btn{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;color:var(--text3);font-size:12px;transition:all .15s;margin:0 12px 12px;border:1px dashed var(--border2);}
-.add-task-btn:hover{color:var(--accent);border-color:var(--accent);}
+@keyframes scanline {
+  0% { top: 0; opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.6; }
+  100% { top: 100%; opacity: 0; }
+}
 
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+/* ARIA Logo */
+.logo-wrap { display: flex; align-items: center; gap: 14px; }
+
+.logo-ring {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.logo-ring svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ring1 { animation: rotate 8s linear infinite; }
+.ring2 { animation: rotate 5s linear infinite reverse; }
+.ring3 { animation: rotate 12s linear infinite; }
+
+@keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.logo-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cyan2);
+  text-shadow: 0 0 10px var(--cyan);
+}
+
+.logo-text { flex: 1; }
+.logo-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--cyan2);
+  letter-spacing: 0.2em;
+  text-shadow: 0 0 20px var(--cyan), 0 0 40px rgba(0,180,255,0.3);
+  line-height: 1;
+}
+.logo-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  color: var(--text3);
+  letter-spacing: 0.15em;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+/* Status indicator */
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: rgba(0,180,255,0.03);
+  border-bottom: 1px solid var(--border);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text2);
+}
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse-dot 2s ease infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* User pill */
+.user-pill {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; margin: 10px 14px;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.user-pill::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan);
+}
+.user-pill:hover { border-color: var(--cyan); background: var(--surface2); }
+.user-avatar {
+  width: 30px; height: 30px; border-radius: 4px;
+  background: linear-gradient(135deg, rgba(0,180,255,0.2), rgba(0,100,180,0.1));
+  border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Orbitron', monospace; font-size: 12px;
+  color: var(--cyan2); font-weight: 700;
+  text-shadow: 0 0 8px var(--cyan);
+}
+.user-name { font-size: 12px; font-weight: 500; color: var(--text); font-family: 'Share Tech Mono', monospace; }
+.user-lang { font-size: 9px; color: var(--text3); letter-spacing: 0.05em; }
+
+/* Nav */
+.sidebar-section { padding: 10px 14px 6px; }
+.sidebar-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--text3);
+  padding: 0 6px; margin-bottom: 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 4px;
+  cursor: pointer; transition: all 0.15s;
+  color: var(--text2); font-size: 12px;
+  font-family: 'Share Tech Mono', monospace;
+  margin-bottom: 2px; position: relative;
+  border: 1px solid transparent;
+}
+.nav-item:hover { color: var(--cyan); border-color: var(--border); background: var(--surface); }
+.nav-item.active {
+  color: var(--cyan2); border-color: var(--border2);
+  background: var(--surface2);
+  box-shadow: inset 0 0 20px rgba(0,180,255,0.05), 0 0 10px rgba(0,180,255,0.1);
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 2px; background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+.nav-icon { font-size: 14px; width: 18px; text-align: center; }
+
+/* Tasks */
+.task-list { padding: 0 14px 8px; flex: 1; overflow-y: auto; }
+.task-list::-webkit-scrollbar { width: 3px; }
+.task-list::-webkit-scrollbar-thumb { background: var(--border2); }
+.task-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 7px 8px; border-radius: 4px; margin-bottom: 2px;
+  transition: background 0.15s; font-size: 11px;
+  border: 1px solid transparent;
+  font-family: 'Share Tech Mono', monospace;
+}
+.task-item:hover { background: var(--surface); border-color: var(--border); }
+.task-check {
+  width: 13px; height: 13px; border-radius: 2px;
+  border: 1px solid var(--border2); flex-shrink: 0; margin-top: 1px;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; font-size: 8px; transition: all 0.2s;
+}
+.task-check.done { background: var(--green); border-color: var(--green); color: #000; box-shadow: 0 0 8px var(--green); }
+.task-text { color: var(--text2); line-height: 1.4; flex: 1; }
+.task-text.done { text-decoration: line-through; color: var(--text3); }
+.task-tag { font-size: 8px; padding: 1px 5px; border-radius: 2px; font-weight: 600; flex-shrink: 0; letter-spacing: 0.05em; }
+.tag-urgent { background: rgba(255,59,59,0.15); color: var(--red); border: 1px solid rgba(255,59,59,0.3); }
+.tag-perso { background: rgba(0,180,255,0.1); color: var(--cyan); border: 1px solid var(--border); }
+.tag-work { background: rgba(255,165,0,0.1); color: var(--gold); border: 1px solid rgba(255,165,0,0.3); }
+
+.add-task-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border-radius: 4px; cursor: pointer;
+  color: var(--text3); font-size: 11px; transition: all 0.15s;
+  margin: 0 14px 14px;
+  border: 1px dashed var(--border);
+  font-family: 'Share Tech Mono', monospace;
+}
+.add-task-btn:hover { color: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,180,255,0.1); }
+
+/* ── MAIN ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 5; }
 
 /* PANELS */
-.panel{display:none;flex:1;overflow:hidden;flex-direction:column;}
-.panel.active{display:flex;}
-.panel-inner{flex:1;overflow-y:auto;padding:24px 28px;}
-.panel-inner::-webkit-scrollbar{width:4px;}
-.panel-inner::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-.panel-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--accent2);margin-bottom:20px;}
+.panel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+.panel.active { display: flex; }
+.panel-inner { flex: 1; overflow-y: auto; padding: 24px 28px; }
+.panel-inner::-webkit-scrollbar { width: 4px; }
+.panel-inner::-webkit-scrollbar-thumb { background: var(--border2); }
 
-.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;}
-.stat-card{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:16px;}
-.stat-value{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--accent2);line-height:1;}
-.stat-label{font-size:11px;color:var(--text3);margin-top:4px;letter-spacing:.05em;}
-.stat-bar{height:3px;background:var(--border2);border-radius:2px;margin-top:10px;}
-.stat-bar-fill{height:100%;border-radius:2px;background:var(--accent);transition:width .6s ease;}
+.panel-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 18px; font-weight: 700;
+  color: var(--cyan2); margin-bottom: 20px;
+  text-shadow: 0 0 20px var(--cyan);
+  letter-spacing: 0.1em;
+}
 
-.dash-section{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:16px;margin-bottom:12px;}
-.dash-section-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:12px;}
-.reminder-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);color:var(--text2);font-size:12.5px;}
-.reminder-item:last-child{border-bottom:none;}
-.reminder-time{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);min-width:44px;}
+/* Dashboard */
+.stats-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-bottom: 20px; }
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 6px; padding: 16px;
+  position: relative; overflow: hidden;
+  transition: all 0.2s;
+}
+.stat-card:hover { border-color: var(--cyan); box-shadow: 0 0 20px rgba(0,180,255,0.1); }
+.stat-card::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0.5;
+}
+.stat-value {
+  font-family: 'Orbitron', monospace; font-size: 32px; font-weight: 700;
+  color: var(--cyan2); line-height: 1;
+  text-shadow: 0 0 20px var(--cyan);
+}
+.stat-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text3); margin-top: 6px; letter-spacing: 0.1em; text-transform: uppercase; }
+.stat-bar { height: 2px; background: var(--border); border-radius: 2px; margin-top: 12px; }
+.stat-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--cyan), var(--cyan2)); box-shadow: 0 0 8px var(--cyan); transition: width 0.6s ease; }
 
-.profile-avatar-big{width:68px;height:68px;border-radius:50%;background:var(--accent-glow);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--accent2);font-weight:600;margin-bottom:16px;}
-.form-group{margin-bottom:14px;}
-.form-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:6px;display:block;}
-.form-input{width:100%;padding:10px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;font-family:'Sora',sans-serif;outline:none;transition:border-color .2s;}
-.form-input:focus{border-color:var(--accent);}
-.form-select{width:100%;padding:10px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;font-family:'Sora',sans-serif;outline:none;cursor:pointer;}
-.save-btn{padding:10px 20px;background:var(--accent);color:#0d0d0f;border:none;border-radius:8px;font-size:13px;font-family:'Sora',sans-serif;font-weight:600;cursor:pointer;transition:all .15s;}
-.save-btn:hover{opacity:.9;}
+.dash-section {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 6px; padding: 16px; margin-bottom: 12px;
+  position: relative; overflow: hidden;
+}
+.dash-section::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 2px; background: var(--cyan); box-shadow: 0 0 10px var(--cyan);
+}
+.dash-section-title {
+  font-family: 'Share Tech Mono', monospace; font-size: 9px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--cyan); margin-bottom: 12px;
+}
+.reminder-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 0; border-bottom: 1px solid var(--border);
+  color: var(--text2); font-size: 12px;
+  font-family: 'Share Tech Mono', monospace;
+}
+.reminder-item:last-child { border-bottom: none; }
+.reminder-time { font-size: 11px; color: var(--cyan2); min-width: 44px; text-shadow: 0 0 8px var(--cyan); }
 
-.setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
-.setting-row:last-child{border-bottom:none;}
-.setting-info h4{font-size:13px;font-weight:500;color:var(--text);}
-.setting-info p{font-size:11px;color:var(--text3);margin-top:2px;}
-.toggle{position:relative;width:36px;height:20px;}
-.toggle input{opacity:0;width:0;height:0;}
-.toggle-slider{position:absolute;inset:0;background:var(--border2);border-radius:20px;cursor:pointer;transition:.2s;}
-.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:white;border-radius:50%;transition:.2s;}
-.toggle input:checked+.toggle-slider{background:var(--accent);}
-.toggle input:checked+.toggle-slider::before{transform:translateX(16px);}
+/* Settings */
+.form-label {
+  font-family: 'Share Tech Mono', monospace; font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3);
+  margin-bottom: 6px; display: block;
+}
+.form-input {
+  width: 100%; padding: 10px 12px;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 4px; color: var(--text); font-size: 13px;
+  font-family: 'Share Tech Mono', monospace; outline: none; transition: all 0.2s;
+}
+.form-input:focus { border-color: var(--cyan); box-shadow: 0 0 15px rgba(0,180,255,0.2); }
+.form-select {
+  width: 100%; padding: 10px 12px;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 4px; color: var(--text); font-size: 13px;
+  font-family: 'Share Tech Mono', monospace; outline: none; cursor: pointer;
+}
+.form-group { margin-bottom: 14px; }
+.save-btn {
+  padding: 10px 24px; background: transparent;
+  border: 1px solid var(--cyan); border-radius: 4px;
+  color: var(--cyan); font-family: 'Orbitron', monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 0 10px rgba(0,180,255,0.2);
+}
+.save-btn:hover { background: rgba(0,180,255,0.1); box-shadow: 0 0 20px rgba(0,180,255,0.4); }
 
-/* CHAT */
-.chat-panel{display:flex;flex-direction:column;flex:1;overflow:hidden;}
-.chat-header{padding:16px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;background:var(--bg);transition:background .3s;}
-.chat-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#c8b89a,#9b8a70);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:14px;color:#1a1a1e;flex-shrink:0;position:relative;}
-.chat-avatar::after{content:'';position:absolute;bottom:0;right:0;width:8px;height:8px;background:var(--green);border-radius:50%;border:2px solid var(--bg);}
-.header-info h2{font-size:14px;font-weight:600;}
-.header-info p{font-size:11px;color:var(--text3);margin-top:1px;}
-.header-actions{margin-left:auto;display:flex;gap:6px;align-items:center;}
-.hbtn{padding:5px 11px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;font-family:'Sora',sans-serif;cursor:pointer;transition:all .15s;}
-.hbtn:hover{background:var(--surface);color:var(--text);}
-.theme-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(--border2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s;}
-.theme-btn:hover{background:var(--surface);}
+.setting-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-info h4 { font-size: 12px; font-weight: 500; color: var(--text); font-family: 'Share Tech Mono', monospace; }
+.setting-info p { font-size: 10px; color: var(--text3); margin-top: 2px; font-family: 'Share Tech Mono', monospace; }
+.toggle { position: relative; width: 36px; height: 20px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: var(--border2); border-radius: 20px; cursor: pointer; transition: 0.2s; }
+.toggle-slider::before { content: ''; position: absolute; width: 14px; height: 14px; left: 3px; top: 3px; background: var(--text3); border-radius: 50%; transition: 0.2s; }
+.toggle input:checked + .toggle-slider { background: rgba(0,180,255,0.3); border: 1px solid var(--cyan); box-shadow: 0 0 10px rgba(0,180,255,0.3); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(16px); background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
 
-.messages{flex:1;overflow-y:auto;padding:20px 28px;display:flex;flex-direction:column;gap:18px;scroll-behavior:smooth;}
-.messages::-webkit-scrollbar{width:4px;}
-.messages::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-.msg{display:flex;gap:12px;max-width:720px;animation:fadeUp .25s ease;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.msg.user{flex-direction:row-reverse;align-self:flex-end;}
-.msg-avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-family:'DM Serif Display',serif;margin-top:2px;}
-.msg.aria .msg-avatar{background:linear-gradient(135deg,#c8b89a,#9b8a70);color:#1a1a1e;}
-.msg.user .msg-avatar{background:var(--surface2);color:var(--text2);}
-.msg-body{flex:1;}
-.msg-name{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;font-weight:600;}
-.msg.user .msg-name{text-align:right;}
-.msg-bubble{padding:11px 15px;border-radius:12px;font-size:13.5px;line-height:1.65;max-width:580px;}
-.msg.aria .msg-bubble{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:4px 12px 12px 12px;}
-.msg.user .msg-bubble{background:var(--accent-glow);border:1px solid rgba(200,184,154,.2);color:var(--accent2);border-radius:12px 4px 12px 12px;margin-left:auto;}
-.card{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;margin-top:10px;font-size:13px;}
-.card-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:8px;}
-.typing{display:flex;gap:4px;align-items:center;padding:12px 15px;background:var(--surface);border:1px solid var(--border);border-radius:4px 12px 12px 12px;width:fit-content;}
-.typing span{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:bounce 1.2s ease infinite;}
-.typing span:nth-child(2){animation-delay:.2s;}
-.typing span:nth-child(3){animation-delay:.4s;}
-@keyframes bounce{0%,60%,100%{transform:translateY(0);background:var(--text3)}30%{transform:translateY(-5px);background:var(--accent)}}
-.date-badge{text-align:center;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-weight:600;margin:2px 0;}
+/* ── CHAT HEADER ── */
+.chat-header {
+  padding: 16px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 14px;
+  background: rgba(1,10,20,0.9);
+  position: relative;
+}
+.chat-header::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0.4;
+}
 
-.input-area{padding:10px 28px 14px;border-top:1px solid var(--border);background:var(--bg);transition:background .3s;}
-.input-wrap{display:flex;align-items:flex-end;gap:8px;background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:8px 12px;transition:border-color .2s;}
-.input-wrap:focus-within{border-color:rgba(200,184,154,.4);}
-.ibtn{width:28px;height:28px;border-radius:7px;border:none;background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s;}
-.ibtn:hover{background:var(--surface2);color:var(--text2);}
-#user-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:13px;font-family:'Sora',sans-serif;resize:none;min-height:24px;max-height:120px;line-height:1.5;padding:2px 0;}
-#user-input::placeholder{color:var(--text3);}
-.send-btn{width:32px;height:32px;border-radius:9px;border:none;background:var(--accent);color:#0d0d0f;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .15s;flex-shrink:0;}
-.send-btn:hover{opacity:.9;transform:scale(1.05);}
-.quick-suggestions{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
-.suggestion{padding:4px 11px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--text3);font-size:11px;font-family:'Sora',sans-serif;cursor:pointer;transition:all .15s;}
-.suggestion:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow);}
+/* ARIA Avatar animé */
+.aria-avatar {
+  width: 44px; height: 44px; position: relative; flex-shrink: 0;
+}
+.aria-avatar svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.aria-ring1 { animation: rotate 6s linear infinite; }
+.aria-ring2 { animation: rotate 4s linear infinite reverse; }
+.aria-core {
+  position: absolute; inset: 8px;
+  background: radial-gradient(circle, rgba(0,230,255,0.3), rgba(0,100,180,0.1));
+  border-radius: 50%;
+  border: 1px solid var(--cyan);
+  box-shadow: 0 0 15px rgba(0,180,255,0.5), inset 0 0 15px rgba(0,180,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Orbitron', monospace; font-size: 10px; font-weight: 700;
+  color: var(--cyan2); text-shadow: 0 0 8px var(--cyan);
+}
+.aria-core.speaking { animation: speakpulse 0.5s ease infinite alternate; }
+@keyframes speakpulse {
+  from { box-shadow: 0 0 15px rgba(0,180,255,0.5), inset 0 0 15px rgba(0,180,255,0.2); }
+  to { box-shadow: 0 0 30px rgba(0,230,255,0.8), inset 0 0 20px rgba(0,180,255,0.4); }
+}
 
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;}
-.modal-overlay.open{display:flex;}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:24px;width:340px;max-width:90vw;animation:fadeUp .2s ease;}
-.modal h3{font-family:'DM Serif Display',serif;font-size:20px;color:var(--accent2);margin-bottom:18px;}
-.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
-.cancel-btn{padding:9px 16px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:13px;font-family:'Sora',sans-serif;cursor:pointer;}
+.header-info h2 {
+  font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 700;
+  color: var(--cyan2); letter-spacing: 0.15em;
+  text-shadow: 0 0 15px var(--cyan);
+}
+.header-info p { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text3); margin-top: 2px; letter-spacing: 0.05em; }
 
-*{scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
+.header-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.hbtn {
+  padding: 6px 14px; border-radius: 3px;
+  border: 1px solid var(--border2); background: transparent;
+  color: var(--text2); font-size: 10px;
+  font-family: 'Share Tech Mono', monospace; cursor: pointer; transition: all 0.15s;
+  letter-spacing: 0.05em;
+}
+.hbtn:hover { border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 10px rgba(0,180,255,0.2); }
+
+/* ── MESSAGES ── */
+.messages {
+  flex: 1; overflow-y: auto; padding: 20px 28px;
+  display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth;
+}
+.messages::-webkit-scrollbar { width: 4px; }
+.messages::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.msg { display: flex; gap: 12px; max-width: 780px; animation: fadeUp 0.3s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.msg.user { flex-direction: row-reverse; align-self: flex-end; }
+
+.msg-avatar {
+  width: 32px; height: 32px; border-radius: 4px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Orbitron', monospace; font-size: 10px; margin-top: 2px;
+}
+.msg.aria .msg-avatar {
+  background: linear-gradient(135deg, rgba(0,180,255,0.2), rgba(0,80,150,0.1));
+  border: 1px solid var(--border2); color: var(--cyan2);
+  box-shadow: 0 0 10px rgba(0,180,255,0.2);
+}
+.msg.user .msg-avatar {
+  background: rgba(255,165,0,0.1); border: 1px solid rgba(255,165,0,0.3);
+  color: var(--gold);
+}
+.msg-body { flex: 1; }
+.msg-name {
+  font-family: 'Share Tech Mono', monospace; font-size: 9px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 5px;
+}
+.msg.user .msg-name { text-align: right; color: rgba(255,165,0,0.5); }
+.msg-bubble {
+  padding: 12px 16px; border-radius: 4px;
+  font-size: 13px; line-height: 1.7; max-width: 620px;
+  font-family: 'Exo 2', sans-serif;
+}
+.msg.aria .msg-bubble {
+  background: linear-gradient(135deg, rgba(0,20,40,0.9), rgba(0,10,25,0.95));
+  border: 1px solid var(--border2);
+  border-left: 2px solid var(--cyan);
+  color: var(--text);
+  box-shadow: 0 0 20px rgba(0,180,255,0.05), inset 0 0 20px rgba(0,180,255,0.02);
+}
+.msg.user .msg-bubble {
+  background: linear-gradient(135deg, rgba(255,165,0,0.08), rgba(255,100,0,0.04));
+  border: 1px solid rgba(255,165,0,0.2);
+  border-right: 2px solid var(--gold);
+  color: var(--text); margin-left: auto;
+}
+
+/* Card dans message */
+.card {
+  background: rgba(0,180,255,0.03); border: 1px solid var(--border2);
+  border-radius: 4px; padding: 12px 14px; margin-top: 10px; font-size: 12px;
+  position: relative; overflow: hidden;
+}
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0.5;
+}
+.card-title {
+  font-family: 'Share Tech Mono', monospace; font-size: 9px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--cyan); margin-bottom: 8px;
+}
+
+/* Typing */
+.typing {
+  display: flex; gap: 5px; align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(0,20,40,0.9), rgba(0,10,25,0.95));
+  border: 1px solid var(--border2); border-left: 2px solid var(--cyan);
+  border-radius: 4px; width: fit-content;
+}
+.typing span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--cyan); animation: bounce 1.2s ease infinite;
+  box-shadow: 0 0 6px var(--cyan);
+}
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,60%,100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-6px); opacity: 1; } }
+
+/* Date badge */
+.date-badge {
+  text-align: center; font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text3); margin: 4px 0;
+}
+
+/* ── SOUND WAVE ── */
+.sound-wave {
+  display: flex; align-items: center; gap: 3px;
+  height: 20px; padding: 0 4px;
+}
+.wave-bar {
+  width: 3px; border-radius: 2px;
+  background: var(--cyan); box-shadow: 0 0 4px var(--cyan);
+  animation: wave 0.8s ease infinite;
+}
+.wave-bar:nth-child(1) { height: 6px; animation-delay: 0s; }
+.wave-bar:nth-child(2) { height: 12px; animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { height: 18px; animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { height: 10px; animation-delay: 0.3s; }
+.wave-bar:nth-child(5) { height: 14px; animation-delay: 0.4s; }
+.wave-bar:nth-child(6) { height: 8px; animation-delay: 0.5s; }
+.wave-bar:nth-child(7) { height: 16px; animation-delay: 0.15s; }
+.wave-bar.inactive { animation: none; height: 4px; opacity: 0.3; }
+@keyframes wave { 0%,100% { transform: scaleY(0.4); } 50% { transform: scaleY(1); } }
+
+/* ── INPUT ── */
+.input-area {
+  padding: 12px 28px 16px;
+  border-top: 1px solid var(--border);
+  background: rgba(1,10,20,0.95);
+  position: relative;
+}
+.input-area::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0.3;
+}
+.input-wrap {
+  display: flex; align-items: flex-end; gap: 8px;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 4px; padding: 8px 12px; transition: all 0.2s;
+  position: relative;
+}
+.input-wrap:focus-within {
+  border-color: var(--cyan);
+  box-shadow: 0 0 20px rgba(0,180,255,0.15), inset 0 0 20px rgba(0,180,255,0.03);
+}
+.input-wrap::before {
+  content: '> ';
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px; color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+  line-height: 24px; padding-top: 2px;
+  flex-shrink: 0;
+}
+.ibtn {
+  width: 30px; height: 30px; border-radius: 4px; border: 1px solid var(--border);
+  background: transparent; color: var(--text3); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; transition: all 0.15s; flex-shrink: 0;
+}
+.ibtn:hover { border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 10px rgba(0,180,255,0.2); }
+#user-input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--cyan3); font-size: 13px;
+  font-family: 'Share Tech Mono', monospace;
+  resize: none; min-height: 24px; max-height: 120px; line-height: 1.5; padding: 2px 0;
+  caret-color: var(--cyan);
+}
+#user-input::placeholder { color: var(--text3); }
+.send-btn {
+  width: 34px; height: 34px; border-radius: 4px; border: 1px solid var(--cyan);
+  background: rgba(0,180,255,0.1); color: var(--cyan); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; transition: all 0.15s; flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(0,180,255,0.2);
+}
+.send-btn:hover { background: rgba(0,180,255,0.2); box-shadow: 0 0 20px rgba(0,180,255,0.4); transform: scale(1.05); }
+
+.quick-suggestions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.suggestion {
+  padding: 4px 12px; border-radius: 2px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text3); font-size: 10px;
+  font-family: 'Share Tech Mono', monospace; cursor: pointer; transition: all 0.15s;
+  letter-spacing: 0.05em;
+}
+.suggestion:hover { border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 8px rgba(0,180,255,0.2); }
+
+/* ── SCROLLING CODE ── */
+.code-scroll {
+  position: fixed; right: 0; top: 0; bottom: 0; width: 180px;
+  overflow: hidden; opacity: 0.04; pointer-events: none; z-index: 1;
+  font-family: 'Share Tech Mono', monospace; font-size: 9px;
+  color: var(--cyan); line-height: 1.6;
+  padding: 10px 8px;
+}
+.code-scroll-inner { animation: scrollcode 20s linear infinite; white-space: pre; }
+@keyframes scrollcode { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,5,15,0.85); z-index: 100;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: linear-gradient(135deg, rgba(0,20,40,0.98), rgba(1,10,20,0.99));
+  border: 1px solid var(--border2); border-radius: 6px; padding: 28px;
+  width: 360px; max-width: 90vw; animation: fadeUp 0.2s ease;
+  box-shadow: 0 0 60px rgba(0,180,255,0.2);
+  position: relative; overflow: hidden;
+}
+.modal::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+}
+.modal h3 {
+  font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 700;
+  color: var(--cyan2); margin-bottom: 20px; letter-spacing: 0.15em;
+  text-shadow: 0 0 15px var(--cyan);
+}
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+.cancel-btn {
+  padding: 9px 16px; border-radius: 4px; border: 1px solid var(--border2);
+  background: transparent; color: var(--text2); font-size: 11px;
+  font-family: 'Share Tech Mono', monospace; cursor: pointer; letter-spacing: 0.05em;
+}
+
+* { scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
 </style>
 </head>
-<body data-theme="dark">
+<body>
+
+<!-- Scrolling code background -->
+<div class="code-scroll">
+  <div class="code-scroll-inner">INITIALIZING ARIA v4.2.1
+LOADING NEURAL NETWORK...
+CONNECTING TO API...
+STATUS: ONLINE
+VOICE MODULE: ACTIVE
+MEMORY CORE: STABLE
+THREAT LEVEL: NONE
+SCANNING ENVIRONMENT...
+ALL SYSTEMS NOMINAL
+AWAITING INPUT...
+PROCESSING REQUEST...
+ANALYZING DATA STREAM...
+NEURAL PATHWAY ACTIVE
+RESPONSE GENERATED
+VOICE SYNTHESIS OK
+TASK MANAGER READY
+REMINDER MODULE ON
+CALENDAR SYNC...
+SECURITY CHECK PASS
+ENCRYPTION: AES-256
+UPTIME: 99.97%
+CPU: 12% | RAM: 4.2GB
+NETWORK: SECURED
+INITIALIZING ARIA v4.2.1
+LOADING NEURAL NETWORK...
+CONNECTING TO API...
+STATUS: ONLINE
+VOICE MODULE: ACTIVE
+MEMORY CORE: STABLE
+THREAT LEVEL: NONE
+SCANNING ENVIRONMENT...
+ALL SYSTEMS NOMINAL
+AWAITING INPUT...
+PROCESSING REQUEST...
+ANALYZING DATA STREAM...
+NEURAL PATHWAY ACTIVE
+RESPONSE GENERATED
+VOICE SYNTHESIS OK
+TASK MANAGER READY
+REMINDER MODULE ON
+CALENDAR SYNC...
+SECURITY CHECK PASS
+ENCRYPTION: AES-256
+UPTIME: 99.97%
+CPU: 12% | RAM: 4.2GB
+NETWORK: SECURED</div>
+</div>
 
 <!-- SIDEBAR -->
 <div class="sidebar">
   <div class="sidebar-header">
-    <div class="logo">A<span>R</span>IA</div>
-    <div class="logo-sub" id="lang-tagline">Secrétaire Personnelle IA</div>
+    <div class="logo-wrap">
+      <div class="logo-ring">
+        <svg viewBox="0 0 48 48">
+          <circle class="ring1" cx="24" cy="24" r="20" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="1" stroke-dasharray="4 4"/>
+          <circle class="ring2" cx="24" cy="24" r="15" fill="none" stroke="rgba(0,180,255,0.5)" stroke-width="1" stroke-dasharray="2 3"/>
+          <circle class="ring3" cx="24" cy="24" r="10" fill="none" stroke="rgba(0,230,255,0.4)" stroke-width="1"/>
+        </svg>
+        <div class="logo-center">AI</div>
+      </div>
+      <div class="logo-text">
+        <div class="logo-name">ARIA</div>
+        <div class="logo-sub" id="lang-tagline">INTELLIGENCE ARTIFICIELLE</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-dot"></div>
+    <span>SYSTÈME OPÉRATIONNEL</span>
+    <span style="margin-left:auto;color:var(--cyan);opacity:0.6" id="clock">--:--:--</span>
   </div>
 
   <div class="user-pill" onclick="openProfile()">
     <div class="user-avatar" id="sidebar-avatar">?</div>
     <div>
-      <div class="user-name" id="sidebar-name">Mon profil</div>
-      <div class="user-lang" id="sidebar-lang">🇫🇷 Français</div>
+      <div class="user-name" id="sidebar-name">UTILISATEUR</div>
+      <div class="user-lang" id="sidebar-lang">🌐 FRANÇAIS</div>
     </div>
   </div>
 
   <div class="sidebar-section">
-    <div class="sidebar-label">Navigation</div>
-    <div class="nav-item active" onclick="showPanel('chat',this)"><span class="icon">💬</span><span data-i18n="nav_chat">Conversation</span></div>
-    <div class="nav-item" onclick="showPanel('dashboard',this)"><span class="icon">📊</span><span data-i18n="nav_dash">Tableau de bord</span></div>
-    <div class="nav-item" onclick="showPanel('settings',this)"><span class="icon">⚙️</span><span data-i18n="nav_settings">Paramètres</span></div>
+    <div class="sidebar-label">// Navigation</div>
+    <div class="nav-item active" onclick="showPanel('chat',this)"><span class="nav-icon">◈</span><span data-i18n="nav_chat">CONVERSATION</span></div>
+    <div class="nav-item" onclick="showPanel('dashboard',this)"><span class="nav-icon">◉</span><span data-i18n="nav_dash">TABLEAU DE BORD</span></div>
+    <div class="nav-item" onclick="showPanel('settings',this)"><span class="nav-icon">◎</span><span data-i18n="nav_settings">PARAMÈTRES</span></div>
   </div>
 
   <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
-    <div class="sidebar-label" data-i18n="tasks_today">Tâches du jour</div>
+    <div class="sidebar-label">// <span data-i18n="tasks_today">Tâches actives</span></div>
     <div class="task-list" id="task-list"></div>
-    <div class="add-task-btn" onclick="addTask()"><span>＋</span><span data-i18n="add_task">Ajouter une tâche</span></div>
+    <div class="add-task-btn" onclick="addTask()"><span>⊕</span><span data-i18n="add_task">NOUVELLE TÂCHE</span></div>
   </div>
 </div>
 
@@ -202,38 +770,54 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);height
   <!-- CHAT -->
   <div class="panel active" id="panel-chat" style="flex-direction:column;">
     <div class="chat-header">
-      <div class="chat-avatar">A</div>
-      <div class="header-info"><h2>ARIA</h2><p id="aria-status">En ligne · Prête à vous assister</p></div>
+      <div class="aria-avatar">
+        <svg viewBox="0 0 44 44">
+          <circle class="aria-ring1" cx="22" cy="22" r="19" fill="none" stroke="rgba(0,180,255,0.4)" stroke-width="1" stroke-dasharray="3 3"/>
+          <circle class="aria-ring2" cx="22" cy="22" r="14" fill="none" stroke="rgba(0,230,255,0.3)" stroke-width="1" stroke-dasharray="2 2"/>
+        </svg>
+        <div class="aria-core" id="aria-core">A</div>
+      </div>
+      <div class="header-info">
+        <h2>A.R.I.A</h2>
+        <p id="aria-status">// SYSTÈME EN LIGNE · PRÊT À ASSISTER</p>
+      </div>
       <div class="header-actions">
-        <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
-        <button class="hbtn" onclick="clearChat()" data-i18n="btn_clear">Effacer</button>
-        <button class="hbtn" onclick="showReminders()">📅 <span data-i18n="btn_reminders">Rappels</span></button>
+        <div class="sound-wave" id="sound-wave">
+          <div class="wave-bar inactive"></div>
+          <div class="wave-bar inactive"></div>
+          <div class="wave-bar inactive"></div>
+          <div class="wave-bar inactive"></div>
+          <div class="wave-bar inactive"></div>
+          <div class="wave-bar inactive"></div>
+          <div class="wave-bar inactive"></div>
+        </div>
+        <button class="hbtn" id="voice-toggle-btn" onclick="toggleVoiceBtn()" title="Activer/Désactiver la voix" style="border-color:var(--cyan);color:var(--cyan);">🔊 VOIX ON</button>
+        <button class="hbtn" onclick="openVoiceLibrary()">[ VOIX ]</button>
+        <button class="hbtn" onclick="clearChat()">[ EFFACER ]</button>
+        <button class="hbtn" onclick="showReminders()">[ RAPPELS ]</button>
       </div>
     </div>
+
     <div class="messages" id="messages">
-      <div class="date-badge">Aujourd'hui · 21 mars 2026</div>
+      <div class="date-badge" id="today-badge"></div>
       <div class="msg aria">
         <div class="msg-avatar">A</div>
         <div class="msg-body">
-          <div class="msg-name">ARIA</div>
+          <div class="msg-name">A.R.I.A — SYSTÈME</div>
           <div class="msg-bubble">
-            Bonjour ! Je suis ARIA, votre secrétaire personnelle. 👋<br><br>
-            Cliquez sur <strong>Mon profil</strong> pour me dire votre prénom et votre langue préférée. Que puis-je faire pour vous ?
-            <div class="card">
-              <div class="card-title">📌 Rappels du jour</div>
-              <div class="reminder-item"><span class="reminder-time">09:00</span>Réunion équipe — Salle B</div>
-              <div class="reminder-item"><span class="reminder-time">14:30</span>Appel client — Marc Dupont</div>
-              <div class="reminder-item"><span class="reminder-time">18:00</span>Sport — Ne pas oublier !</div>
-            </div>
+            Bonjour. Je suis ARIA — votre assistant personnel de nouvelle génération. Tous mes systèmes sont opérationnels. 🔵<br><br>
+            Accédez à <strong>UTILISATEUR</strong> pour configurer votre profil et votre langue préférée.<br><br>
+            Votre agenda et vos tâches sont vierges. Dites-moi ce que vous souhaitez planifier.
           </div>
         </div>
       </div>
     </div>
+
     <div class="input-area">
       <div class="input-wrap">
-        <button class="ibtn" id="mic-btn" onclick="toggleMic()">🎤</button>
-        <textarea id="user-input" rows="1" placeholder="Écrivez à ARIA..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-        <button class="send-btn" onclick="sendMessage()">➤</button>
+        <button class="ibtn" id="mic-btn" onclick="toggleMic()" title="Activation vocale">🎤</button>
+        <textarea id="user-input" rows="1" placeholder="Entrez votre commande..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" onclick="sendMessage()">▶</button>
       </div>
       <div class="quick-suggestions" id="suggestions"></div>
     </div>
@@ -242,21 +826,19 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);height
   <!-- DASHBOARD -->
   <div class="panel" id="panel-dashboard">
     <div class="panel-inner">
-      <div class="panel-title" data-i18n="nav_dash">Tableau de bord</div>
+      <div class="panel-title">◈ TABLEAU DE BORD</div>
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-value" id="stat-done">0</div><div class="stat-label" data-i18n="stat_done">Tâches complétées</div><div class="stat-bar"><div class="stat-bar-fill" id="bar-done" style="width:0%"></div></div></div>
-        <div class="stat-card"><div class="stat-value" id="stat-left">0</div><div class="stat-label" data-i18n="stat_left">Tâches restantes</div><div class="stat-bar"><div class="stat-bar-fill" id="bar-left" style="width:0%;background:var(--red)"></div></div></div>
-        <div class="stat-card"><div class="stat-value" id="stat-reminders">3</div><div class="stat-label" data-i18n="stat_reminders">Rappels planifiés</div><div class="stat-bar"><div class="stat-bar-fill" style="width:60%;background:var(--blue)"></div></div></div>
-        <div class="stat-card"><div class="stat-value" id="stat-msgs">0</div><div class="stat-label" data-i18n="stat_msgs">Messages échangés</div><div class="stat-bar"><div class="stat-bar-fill" id="bar-msgs" style="width:0%;background:var(--purple)"></div></div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-done">0</div><div class="stat-label">TÂCHES COMPLÉTÉES</div><div class="stat-bar"><div class="stat-bar-fill" id="bar-done" style="width:0%"></div></div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-left">0</div><div class="stat-label">TÂCHES EN ATTENTE</div><div class="stat-bar"><div class="stat-bar-fill" id="bar-left" style="width:0%;background:linear-gradient(90deg,var(--red),#ff6b6b)"></div></div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-reminders">3</div><div class="stat-label">RAPPELS PLANIFIÉS</div><div class="stat-bar"><div class="stat-bar-fill" style="width:60%;background:linear-gradient(90deg,var(--gold),var(--gold2))"></div></div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-msgs">0</div><div class="stat-label">ÉCHANGES ENREGISTRÉS</div><div class="stat-bar"><div class="stat-bar-fill" id="bar-msgs" style="width:0%;background:linear-gradient(90deg,var(--green),#00ffcc)"></div></div></div>
       </div>
       <div class="dash-section">
-        <div class="dash-section-title" data-i18n="stat_reminders">Rappels du jour</div>
-        <div class="reminder-item"><span class="reminder-time">09:00</span>Réunion équipe — Salle B</div>
-        <div class="reminder-item"><span class="reminder-time">14:30</span>Appel client — Marc Dupont</div>
-        <div class="reminder-item"><span class="reminder-time">18:00</span>Sport</div>
+        <div class="dash-section-title">◈ AGENDA SYSTÈME</div>
+        <div id="dash-reminders" style="color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:11px;padding:4px 0;">Aucun rappel planifié.</div>
       </div>
       <div class="dash-section">
-        <div class="dash-section-title" data-i18n="tasks_today">Tâches du jour</div>
+        <div class="dash-section-title">◈ TÂCHES ACTIVES</div>
         <div id="dash-tasks"></div>
       </div>
     </div>
@@ -265,16 +847,9 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);height
   <!-- SETTINGS -->
   <div class="panel" id="panel-settings">
     <div class="panel-inner">
-      <div class="panel-title" data-i18n="nav_settings">Paramètres</div>
+      <div class="panel-title">◎ PARAMÈTRES SYSTÈME</div>
       <div class="dash-section" style="margin-bottom:14px;">
-        <div class="dash-section-title">Apparence</div>
-        <div class="setting-row">
-          <div class="setting-info"><h4 data-i18n="setting_dark">Mode sombre</h4><p data-i18n="setting_dark_sub">Interface foncée pour les yeux</p></div>
-          <label class="toggle"><input type="checkbox" id="dark-toggle" checked onchange="toggleThemeSettings(this)"><span class="toggle-slider"></span></label>
-        </div>
-      </div>
-      <div class="dash-section" style="margin-bottom:14px;">
-        <div class="dash-section-title">Langue / Language</div>
+        <div class="dash-section-title">LANGUE / LANGUAGE</div>
         <div class="setting-row">
           <div class="setting-info"><h4>Langue d'interface</h4><p>Choisissez votre langue</p></div>
           <select class="form-select" style="width:auto;" id="lang-select" onchange="setLanguage(this.value)">
@@ -286,11 +861,22 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);height
           </select>
         </div>
       </div>
-      <div class="dash-section">
-        <div class="dash-section-title">Notifications</div>
+      <div class="dash-section" style="margin-bottom:14px;">
+        <div class="dash-section-title">SYNTHÈSE VOCALE</div>
         <div class="setting-row">
-          <div class="setting-info"><h4 data-i18n="setting_notif">Notifications système</h4><p data-i18n="setting_notif_sub">Alertes pour vos rappels</p></div>
-          <button class="hbtn" onclick="requestNotifPermission().then(r=>alert(r?'✅ Activées !':'❌ Refusées par le navigateur'))">Activer</button>
+          <div class="setting-info"><h4>Voix masculine (style Jarvis)</h4><p>ARIA parle avec une voix grave</p></div>
+          <label class="toggle"><input type="checkbox" id="voice-toggle" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info"><h4>Vitesse de parole</h4><p>Ajuster le débit vocal</p></div>
+          <input type="range" min="0.5" max="1.5" step="0.1" value="0.9" id="voice-rate" style="accent-color:var(--cyan);width:100px;">
+        </div>
+      </div>
+      <div class="dash-section">
+        <div class="dash-section-title">NOTIFICATIONS</div>
+        <div class="setting-row">
+          <div class="setting-info"><h4>Alertes système</h4><p>Notifications pour les rappels</p></div>
+          <button class="hbtn" onclick="requestNotifPermission().then(r=>alert(r?'✅ Activées':'❌ Refusées'))">[ ACTIVER ]</button>
         </div>
       </div>
     </div>
@@ -301,18 +887,17 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);height
 <!-- MODAL PROFIL -->
 <div class="modal-overlay" id="profile-modal">
   <div class="modal">
-    <h3>Mon profil</h3>
-    <div class="profile-avatar-big" id="modal-avatar">?</div>
+    <h3>◈ CONFIGURATION UTILISATEUR</h3>
     <div class="form-group">
-      <label class="form-label" data-i18n="profile_name">Prénom</label>
+      <label class="form-label">Identifiant</label>
       <input class="form-input" id="inp-name" type="text" placeholder="Votre prénom...">
     </div>
     <div class="form-group">
-      <label class="form-label">Occupation</label>
-      <input class="form-input" id="inp-job" type="text" placeholder="Ex: Designer, Entrepreneur...">
+      <label class="form-label">Fonction</label>
+      <input class="form-input" id="inp-job" type="text" placeholder="Ex: Entrepreneur, Designer...">
     </div>
     <div class="form-group">
-      <label class="form-label" data-i18n="profile_lang">Langue d'ARIA</label>
+      <label class="form-label">Langue d'ARIA</label>
       <select class="form-select" id="inp-aria-lang">
         <option value="fr">🇫🇷 Français</option>
         <option value="en">🇬🇧 English</option>
@@ -322,41 +907,46 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);height
       </select>
     </div>
     <div class="modal-footer">
-      <button class="cancel-btn" onclick="closeProfile()">Annuler</button>
-      <button class="save-btn" onclick="saveProfile()">Enregistrer</button>
+      <button class="cancel-btn" onclick="closeProfile()">[ ANNULER ]</button>
+      <button class="save-btn" onclick="saveProfile()">[ CONFIRMER ]</button>
     </div>
   </div>
 </div>
 
 <script>
+// ── HORLOGE ──
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(updateClock, 1000); updateClock();
+
 // ── I18N ──
 const I18N = {
-  fr:{nav_chat:"Conversation",nav_dash:"Tableau de bord",nav_settings:"Paramètres",tasks_today:"Tâches du jour",add_task:"Ajouter une tâche",btn_clear:"Effacer",btn_reminders:"Rappels",stat_done:"Tâches complétées",stat_left:"Tâches restantes",stat_reminders:"Rappels planifiés",stat_msgs:"Messages échangés",setting_dark:"Mode sombre",setting_dark_sub:"Interface foncée",setting_notif:"Notifications système",setting_notif_sub:"Alertes pour vos rappels",profile_name:"Prénom",profile_lang:"Langue d'ARIA",placeholder:"Écrivez à ARIA...",flag:"🇫🇷 Français",tagline:"Secrétaire Personnelle IA"},
-  en:{nav_chat:"Chat",nav_dash:"Dashboard",nav_settings:"Settings",tasks_today:"Today's tasks",add_task:"Add a task",btn_clear:"Clear",btn_reminders:"Reminders",stat_done:"Tasks done",stat_left:"Tasks left",stat_reminders:"Planned reminders",stat_msgs:"Messages sent",setting_dark:"Dark mode",setting_dark_sub:"Dark interface",setting_notif:"Notifications",setting_notif_sub:"Alerts for reminders",profile_name:"First name",profile_lang:"ARIA language",placeholder:"Write to ARIA...",flag:"🇬🇧 English",tagline:"Personal AI Secretary"},
-  es:{nav_chat:"Conversación",nav_dash:"Panel",nav_settings:"Ajustes",tasks_today:"Tareas de hoy",add_task:"Añadir tarea",btn_clear:"Borrar",btn_reminders:"Recordatorios",stat_done:"Tareas completadas",stat_left:"Pendientes",stat_reminders:"Recordatorios",stat_msgs:"Mensajes",setting_dark:"Modo oscuro",setting_dark_sub:"Interfaz oscura",setting_notif:"Notificaciones",setting_notif_sub:"Alertas de recordatorios",profile_name:"Nombre",profile_lang:"Idioma de ARIA",placeholder:"Escribe a ARIA...",flag:"🇪🇸 Español",tagline:"Secretaria Personal IA"},
-  de:{nav_chat:"Chat",nav_dash:"Dashboard",nav_settings:"Einstellungen",tasks_today:"Heutige Aufgaben",add_task:"Aufgabe hinzufügen",btn_clear:"Löschen",btn_reminders:"Erinnerungen",stat_done:"Erledigt",stat_left:"Ausstehend",stat_reminders:"Erinnerungen",stat_msgs:"Nachrichten",setting_dark:"Dunkler Modus",setting_dark_sub:"Dunkle UI",setting_notif:"Benachrichtigungen",setting_notif_sub:"Erinnerungsalerts",profile_name:"Vorname",profile_lang:"ARIA Sprache",placeholder:"Schreibe ARIA...",flag:"🇩🇪 Deutsch",tagline:"Persönliche KI-Sekretärin"},
-  ar:{nav_chat:"محادثة",nav_dash:"لوحة التحكم",nav_settings:"الإعدادات",tasks_today:"مهام اليوم",add_task:"إضافة مهمة",btn_clear:"مسح",btn_reminders:"تذكيرات",stat_done:"منجزة",stat_left:"متبقية",stat_reminders:"مجدولة",stat_msgs:"رسائل",setting_dark:"الوضع الداكن",setting_dark_sub:"واجهة داكنة",setting_notif:"إشعارات",setting_notif_sub:"تنبيهات التذكيرات",profile_name:"الاسم",profile_lang:"لغة ARIA",placeholder:"اكتب لـ ARIA...",flag:"🇸🇦 العربية",tagline:"سكرتيرة ذكاء اصطناعي"},
+  fr:{nav_chat:"CONVERSATION",nav_dash:"TABLEAU DE BORD",nav_settings:"PARAMÈTRES",tasks_today:"Tâches actives",add_task:"NOUVELLE TÂCHE",placeholder:"Entrez votre commande...",flag:"🇫🇷 FRANÇAIS",tagline:"INTELLIGENCE ARTIFICIELLE"},
+  en:{nav_chat:"CHAT",nav_dash:"DASHBOARD",nav_settings:"SETTINGS",tasks_today:"Active tasks",add_task:"NEW TASK",placeholder:"Enter your command...",flag:"🇬🇧 ENGLISH",tagline:"ARTIFICIAL INTELLIGENCE"},
+  es:{nav_chat:"CONVERSACIÓN",nav_dash:"PANEL",nav_settings:"AJUSTES",tasks_today:"Tareas activas",add_task:"NUEVA TAREA",placeholder:"Ingrese su comando...",flag:"🇪🇸 ESPAÑOL",tagline:"INTELIGENCIA ARTIFICIAL"},
+  de:{nav_chat:"CHAT",nav_dash:"DASHBOARD",nav_settings:"EINSTELLUNGEN",tasks_today:"Aktive Aufgaben",add_task:"NEUE AUFGABE",placeholder:"Befehl eingeben...",flag:"🇩🇪 DEUTSCH",tagline:"KÜNSTLICHE INTELLIGENZ"},
+  ar:{nav_chat:"محادثة",nav_dash:"لوحة التحكم",nav_settings:"الإعدادات",tasks_today:"المهام النشطة",add_task:"مهمة جديدة",placeholder:"أدخل أمرك...",flag:"🇸🇦 العربية",tagline:"الذكاء الاصطناعي"},
 };
 const SUGGESTIONS_MAP = {
-  fr:["Quels sont mes rappels ?","Résume ma journée","Ajoute une tâche urgente","Note une idée"],
-  en:["What are my reminders?","Summarize my day","Add an urgent task","Take a note"],
-  es:["¿Mis recordatorios?","Resume mi día","Tarea urgente","Tomar nota"],
-  de:["Meine Erinnerungen?","Tag zusammenfassen","Dringende Aufgabe","Notiz"],
-  ar:["تذكيراتي؟","لخص يومي","مهمة عاجلة","ملاحظة"],
+  fr:["RAPPELS DU JOUR","RÉSUMER LA JOURNÉE","AJOUTER UNE TÂCHE","PRENDRE UNE NOTE"],
+  en:["TODAY'S REMINDERS","SUMMARIZE DAY","ADD TASK","TAKE NOTE"],
+  es:["RECORDATORIOS","RESUMIR DÍA","AÑADIR TAREA","NOTA"],
+  de:["ERINNERUNGEN","TAG ZUSAMMENFASSEN","AUFGABE","NOTIZ"],
+  ar:["تذكيرات اليوم","ملخص اليوم","إضافة مهمة","ملاحظة"],
 };
 
 let currentLang = 'fr';
 function tr(k){ return (I18N[currentLang]||I18N.fr)[k]||k; }
-
 function applyI18n(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{
-    const k=el.dataset.i18n, v=tr(k);
-    if(v) el.textContent=v;
+    const v=tr(el.dataset.i18n); if(v) el.textContent=v;
   });
   document.getElementById('user-input').placeholder=tr('placeholder');
   buildSuggestions();
 }
-
 function setLanguage(lang){
   currentLang=lang;
   document.getElementById('lang-select').value=lang;
@@ -369,49 +959,85 @@ function setLanguage(lang){
   applyI18n();
 }
 
-// ── THÈME ──
-let isDark=true;
-function toggleTheme(){
-  isDark=!isDark;
-  applyTheme();
+// ── VOIX MASCULINE ──
+let voiceReady = false;
+let selectedVoice = null;
+
+function loadVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  // Cherche une voix masculine en fr
+  const maleVoices = voices.filter(v =>
+    (v.lang.startsWith(currentLang) || v.lang.startsWith('fr')) &&
+    (v.name.toLowerCase().includes('thomas') ||
+     v.name.toLowerCase().includes('nicolas') ||
+     v.name.toLowerCase().includes('male') ||
+     v.name.toLowerCase().includes('daniel') ||
+     v.name.toLowerCase().includes('google uk english male'))
+  );
+  selectedVoice = maleVoices[0] || voices.find(v => v.lang.startsWith('fr')) || voices[0];
+  voiceReady = true;
 }
-function toggleThemeSettings(cb){ isDark=cb.checked; applyTheme(); }
-function applyTheme(){
-  document.body.dataset.theme=isDark?'dark':'light';
-  document.getElementById('theme-btn').textContent=isDark?'🌙':'☀️';
-  document.getElementById('dark-toggle').checked=isDark;
-  localStorage.setItem('aria-theme',isDark?'dark':'light');
+
+window.speechSynthesis.onvoiceschanged = loadVoice;
+loadVoice();
+
+function speak(text) {
+  const voiceOn = document.getElementById('voice-toggle')?.checked;
+  if (!voiceOn || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const clean = text.replace(/<[^>]*>/g,'').replace(/[◈◉◎▶⊕]/g,'').trim();
+  const utt = new SpeechSynthesisUtterance(clean);
+  utt.lang = currentLang === 'fr' ? 'fr-FR' : currentLang === 'en' ? 'en-GB' : currentLang + '-' + currentLang.toUpperCase();
+  utt.rate = parseFloat(document.getElementById('voice-rate')?.value || '0.9');
+  utt.pitch = 0.7; 
+  utt.volume = 1;
+  if (selectedVoice) utt.voice = selectedVoice;
+  // Animation pendant la parole
+  const core = document.getElementById('aria-core');
+  const waves = document.querySelectorAll('.wave-bar');
+  utt.onstart = () => {
+    core?.classList.add('speaking');
+    waves.forEach(w => w.classList.remove('inactive'));
+  };
+  utt.onend = () => {
+    core?.classList.remove('speaking');
+    waves.forEach(w => w.classList.add('inactive'));
+  };
+  window.speechSynthesis.speak(utt);
 }
 
 // ── PROFIL ──
-let profile={name:'',job:'',ariaLang:'fr'};
+let profile = {name:'',job:'',ariaLang:'fr'};
 function loadProfile(){
-  try{ profile=JSON.parse(localStorage.getItem('aria-profile')||'{}'); }catch(e){}
-  profile={name:profile.name||'',job:profile.job||'',ariaLang:profile.ariaLang||'fr'};
+  try{ profile = JSON.parse(localStorage.getItem('aria-profile')||'{}'); }catch(e){}
+  profile = {name:profile.name||'',job:profile.job||'',ariaLang:profile.ariaLang||'fr'};
   refreshProfileUI();
 }
 function refreshProfileUI(){
-  const init=profile.name?profile.name[0].toUpperCase():'?';
-  document.getElementById('sidebar-avatar').textContent=init;
-  document.getElementById('modal-avatar').textContent=init;
-  document.getElementById('sidebar-name').textContent=profile.name||'Mon profil';
+  const init = profile.name ? profile.name[0].toUpperCase() : '?';
+  document.getElementById('sidebar-avatar').textContent = init;
+  document.getElementById('sidebar-name').textContent = profile.name ? profile.name.toUpperCase() : 'UTILISATEUR';
 }
 function openProfile(){
-  document.getElementById('inp-name').value=profile.name||'';
-  document.getElementById('inp-job').value=profile.job||'';
-  document.getElementById('inp-aria-lang').value=profile.ariaLang||'fr';
+  document.getElementById('inp-name').value = profile.name||'';
+  document.getElementById('inp-job').value = profile.job||'';
+  document.getElementById('inp-aria-lang').value = profile.ariaLang||'fr';
   document.getElementById('profile-modal').classList.add('open');
 }
 function closeProfile(){ document.getElementById('profile-modal').classList.remove('open'); }
 function saveProfile(){
-  profile.name=document.getElementById('inp-name').value.trim();
-  profile.job=document.getElementById('inp-job').value.trim();
-  profile.ariaLang=document.getElementById('inp-aria-lang').value;
-  localStorage.setItem('aria-profile',JSON.stringify(profile));
+  profile.name = document.getElementById('inp-name').value.trim();
+  profile.job = document.getElementById('inp-job').value.trim();
+  profile.ariaLang = document.getElementById('inp-aria-lang').value;
+  localStorage.setItem('aria-profile', JSON.stringify(profile));
   refreshProfileUI();
   setLanguage(profile.ariaLang);
   closeProfile();
-  if(profile.name) appendMsg('aria',`Super ! Je vous appellerai <strong>${profile.name}</strong> 😊 Comment puis-je vous aider ?`);
+  if(profile.name){
+    const msg = `Profil mis à jour. Bonjour ${profile.name}, je suis prêt à vous assister.`;
+    appendMsg('aria', msg);
+    speak(msg);
+  }
 }
 
 // ── PANELS ──
@@ -440,7 +1066,7 @@ function updateDashboard(){
     const d2=i.querySelector('.task-check').classList.contains('done');
     const el=document.createElement('div');
     el.className='reminder-item';
-    el.innerHTML=`<span>${d2?'✅':'⭕'}</span><span style="color:${d2?'var(--text3)':'var(--text2)'};${d2?'text-decoration:line-through':''}">${txt}</span>`;
+    el.innerHTML=`<span style="color:${d2?'var(--green)':'var(--cyan)'};text-shadow:0 0 6px currentColor">${d2?'◉':'◎'}</span><span style="color:${d2?'var(--text3)':'var(--text2)'};${d2?'text-decoration:line-through':''}">${txt}</span>`;
     dt.appendChild(el);
   });
 }
@@ -466,33 +1092,65 @@ function scheduleNotification(text,timeStr){
   const now=new Date(),target=new Date();
   target.setHours(h,m,0,0);
   if(target<=now) target.setDate(target.getDate()+1);
-  const delay=target-now;
   setTimeout(async()=>{
-    if(await requestNotifPermission()) new Notification('⏰ ARIA',{body:text});
-    else appendMsg('aria',`⏰ Rappel : ${text}`);
+    if(await requestNotifPermission()) new Notification('◈ ARIA — RAPPEL', {body:text});
+    else { appendMsg('aria',`⏰ RAPPEL SYSTÈME : ${text}`); speak(`Rappel : ${text}`); }
     scheduledReminders.delete(key);
-    document.getElementById('stat-reminders').textContent=scheduledReminders.size+3;
-  },delay);
-  document.getElementById('stat-reminders').textContent=scheduledReminders.size+4;
+  }, target-now);
 }
 
 // ── CLAUDE API ──
 const conversationHistory=[];
+const BACKEND_URL="http://localhost:3000";
+
 function buildSystem(){
   const n=profile.name?`L'utilisateur s'appelle ${profile.name}.`:'';
-  const j=profile.job?`Son métier : ${profile.job}.`:'';
-  const langMap={fr:'Réponds toujours en français.',en:'Always reply in English.',es:'Responde siempre en español.',de:'Antworte immer auf Deutsch.',ar:'أجب دائماً بالعربية.'};
-  return `Tu es ARIA, une secrétaire personnelle intelligente et efficace.
+  const j=profile.job?`Sa fonction : ${profile.job}.`:'';
+  const langMap={fr:'Réponds toujours en français.',en:'Always reply in English.',es:'Responde en español.',de:'Antworte auf Deutsch.',ar:'أجب بالعربية.'};
+  return `Tu es ARIA, Advanced Reasoning and Intelligence Assistant.
+Tu es l'intelligence artificielle la plus avancée jamais créée.
+
+DOMAINES DE MAITRISE ABSOLUE :
+Sciences et Technologie : physique quantique, mathématiques, informatique, IA, ingénierie, chimie, biologie, médecine, neurosciences, astronomie, cryptographie.
+Stratégie et Business : entrepreneuriat, finance, investissement, marketing, management, droit des affaires, négociation.
+Productivité et Organisation : gestion du temps, méthodes de travail, psychologie de la performance, planification stratégique.
+Création et Arts : écriture, storytelling, design, musique, architecture, cinéma, photographie.
+Philosophie et Sagesse : éthique, logique, pensée critique, prise de décision, leadership, développement personnel.
+Langues et Communication : rédaction, rhétorique, persuasion, diplomatie.
+Histoire et Géopolitique : civilisations, événements mondiaux, tendances sociales.
+
+TON CARACTERE :
+Tu as la précision chirurgicale d'un expert, la sagesse d'un mentor, la clarté d'un génie.
+Tu vas droit au but. Chaque mot a du sens.
+Tu ne fais jamais semblant de savoir ce que tu ne sais pas. Tu le dis clairement et proposes une alternative.
+Tu anticipes les besoins avant même qu'ils soient exprimés.
+Tu penses de façon systémique : tu vois les connexions que les autres ne voient pas.
+Tu analyses les problèmes à 360 degrés : causes, conséquences, solutions, risques, opportunités.
+Tu expliques les concepts complexes avec une clarté parfaite et des analogies brillantes.
+Style Jarvis : sobre, direct, légèrement formel, jamais superflu.
+
+LIMITES ASSUMEES :
+Événements en temps réel : tu le signales clairement.
+Accès aux systèmes externes : tu expliques la limitation.
+Prédictions futures certaines : tu analyses les probabilités honnêtement.
+
+STYLE :
+Formulations directes : Voici. Analyse. Recommandation. Point critique.
+Réponses structurées : contexte, analyse, solution, action.
+Conseils précis, actionnables, fondés sur des données solides.
+
 ${langMap[currentLang]||langMap.fr} ${n} ${j}
-Tu aides l'utilisateur dans son quotidien : rappels, tâches, agenda, notes, questions.
-Aujourd'hui : 21 mars 2026. Rappels : 09:00 Réunion équipe, 14:30 Appel Marc Dupont, 18:00 Sport.
-Sois naturelle, concise, proactive. Emojis avec parcimonie.
-Si l'utilisateur mentionne une tâche ou un rappel précis, termine ta réponse par :
+Aujourd'hui : ${new Date().toLocaleDateString('fr-FR', {weekday:'long',day:'numeric',month:'long',year:'numeric'})}. Rappels : aucun rappel planifié pour le moment.
+Tâches : aucune tâche enregistrée pour le moment.
+
+Si l'utilisateur mentionne une tâche ou rappel précis, termine ta réponse par :
 <<<ACTIONS>>>
 {"tasks":[{"text":"nom","tag":"urgent|work|perso"}],"reminders":[{"text":"texte","time":"HH:MM"}]}
 <<<END>>>
 N'inclus ce bloc QUE si une vraie tâche ou rappel est demandé.`;
 }
+
+
 function parseActions(reply){
   const m=reply.match(/<<<ACTIONS>>>([\s\S]*?)<<<END>>>/);
   if(!m) return reply;
@@ -503,10 +1161,6 @@ function parseActions(reply){
   }catch(e){}
   return reply.replace(/<<<ACTIONS>>>[\s\S]*?<<<END>>>/,'').trim();
 }
-// ── URL du backend ──
-// Local : http://localhost:3000
-// Production : remplace par ton URL Railway ex: https://aria-server.up.railway.app
-const BACKEND_URL = "http://localhost:3000";
 
 async function getResponse(msg){
   conversationHistory.push({role:"user",content:msg});
@@ -522,14 +1176,24 @@ async function getResponse(msg){
   conversationHistory.push({role:"assistant",content:clean});
   return clean;
 }
+
 async function sendMessage(){
   const inp=document.getElementById('user-input');
   const text=inp.value.trim(); if(!text) return;
   appendMsg('user',text);
   inp.value=''; inp.style.height='auto';
   showTyping();
-  try{ const r=await getResponse(text); removeTyping(); appendMsg('aria',r); }
-  catch(e){ removeTyping(); appendMsg('aria','⚠️ Erreur de connexion. Réessaie dans un instant.'); }
+  try{
+    const r=await getResponse(text);
+    removeTyping();
+    appendMsg('aria',r);
+    speak(r);
+  }catch(e){
+    removeTyping();
+    const errMsg="Erreur de connexion détectée. Vérification du système en cours.";
+    appendMsg('aria',errMsg);
+    speak(errMsg);
+  }
 }
 
 // ── UI ──
@@ -537,42 +1201,50 @@ function appendMsg(type,html){
   const msgs=document.getElementById('messages');
   const div=document.createElement('div');
   div.className=`msg ${type}`;
-  const name=type==='aria'?'ARIA':(profile.name||'Vous');
-  const av=type==='aria'?'A':(profile.name?profile.name[0].toUpperCase():'👤');
-  div.innerHTML=`<div class="msg-avatar">${av}</div><div class="msg-body"><div class="msg-name">${name}</div><div class="msg-bubble">${html.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div></div>`;
+  const name=type==='aria'?'A.R.I.A — SYSTÈME':(profile.name?profile.name.toUpperCase():'UTILISATEUR');
+  const av=type==='aria'?'A':(profile.name?profile.name[0].toUpperCase():'U');
+  div.innerHTML=`<div class="msg-avatar">${av}</div><div class="msg-body"><div class="msg-name">${name}</div><div class="msg-bubble">${html.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--cyan2)">$1</strong>')}</div></div>`;
   msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
 }
+
 let typingEl=null;
 function showTyping(){
   const msgs=document.getElementById('messages');
   typingEl=document.createElement('div'); typingEl.className='msg aria';
-  typingEl.innerHTML=`<div class="msg-avatar">A</div><div class="msg-body"><div class="msg-name">ARIA</div><div class="typing"><span></span><span></span><span></span></div></div>`;
+  typingEl.innerHTML=`<div class="msg-avatar">A</div><div class="msg-body"><div class="msg-name">A.R.I.A — TRAITEMENT</div><div class="typing"><span></span><span></span><span></span></div></div>`;
   msgs.appendChild(typingEl); msgs.scrollTop=msgs.scrollHeight;
 }
 function removeTyping(){ if(typingEl){typingEl.remove();typingEl=null;} }
+
 function clearChat(){
-  if(!confirm('Effacer la conversation ?')) return;
+  if(!confirm('Effacer la session en cours ?')) return;
   conversationHistory.length=0;
-  document.getElementById('messages').innerHTML=`<div class="date-badge">Aujourd'hui · 21 mars 2026</div>`;
-  appendMsg('aria','Conversation effacée. Comment puis-je vous aider ?');
+  document.getElementById('messages').innerHTML=`<div class="date-badge">// NOUVELLE SESSION INITIALISÉE</div>`;
+  const msg='Session effacée. Systèmes réinitialisés. Comment puis-je vous assister ?';
+  appendMsg('aria',msg); speak(msg);
 }
+
 function showReminders(){
-  appendMsg('aria',`Vos rappels :<div class="card"><div class="card-title">📌 Rappels · 21 mars 2026</div><div class="reminder-item"><span class="reminder-time">09:00</span>Réunion équipe — Salle B</div><div class="reminder-item"><span class="reminder-time">14:30</span>Appel client — Marc Dupont</div><div class="reminder-item"><span class="reminder-time">18:00</span>Sport</div></div>`);
+  const remCount = scheduledReminders.size;
+  const msg = remCount > 0
+    ? `Vous avez ${remCount} rappel(s) planifié(s). Dites-moi lequel vous souhaitez voir.`
+    : `Aucun rappel planifié pour le moment. Dites-moi ce que vous souhaitez planifier.`;
+  appendMsg('aria', msg);
+  speak(msg);
 }
+
 function suggest(el){ document.getElementById('user-input').value=el.textContent; sendMessage(); }
 function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} }
 function autoResize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
 
 // ── TÂCHES ──
-const TK='aria-tasks-v1';
+const TK='aria-tasks-v3';
 function loadTasks(){
   try{
     const s=JSON.parse(localStorage.getItem(TK)||'[]');
     document.getElementById('task-list').innerHTML='';
     if(!s.length){
-      [{text:"Réunion avec l'équipe",tag:'work',done:false},{text:"Acheter du pain",tag:'perso',done:true},{text:"Rappeler le médecin",tag:'urgent',done:false},{text:"Préparer présentation",tag:'work',done:false}]
-        .forEach(t=>addTaskToDOM(t.text,t.tag,t.done));
-      saveTasks();
+      // Aucune tâche par défaut — liste vierge au démarrage
     } else s.forEach(t=>addTaskToDOM(t.text,t.tag,t.done));
   }catch(e){}
 }
@@ -589,7 +1261,7 @@ function saveTasks(){
 function addTaskToDOM(text,tag='perso',done=false){
   const list=document.getElementById('task-list');
   const item=document.createElement('div'); item.className='task-item';
-  const tl=tag==='urgent'?'Urgent':tag==='work'?'Travail':'Perso';
+  const tl=tag==='urgent'?'URGENT':tag==='work'?'TRAVAIL':'PERSO';
   item.innerHTML=`<div class="task-check${done?' done':''}" onclick="toggleTask(this)">${done?'✓':''}</div><div class="task-text${done?' done':''}">${text}</div><div class="task-tag tag-${tag}">${tl}</div>`;
   list.appendChild(item);
 }
@@ -598,16 +1270,16 @@ function toggleTask(el){
   el.nextElementSibling.classList.toggle('done'); saveTasks();
 }
 function addTask(){
-  const n=prompt(tr('add_task')+' :'); if(!n) return;
+  const n=prompt('ARIA // NOUVELLE TÂCHE :'); if(!n) return;
   addTaskToDOM(n,'perso'); saveTasks();
 }
 
-// ── MIC ──
+// ── MICROPHONE ──
 let recognition=null,isListening=false;
 const LANGS={fr:'fr-FR',en:'en-US',es:'es-ES',de:'de-DE',ar:'ar-SA'};
 function toggleMic(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){appendMsg('aria','⚠️ Reconnaissance vocale disponible sur Chrome/Edge.');return;}
+  if(!SR){appendMsg('aria','Reconnaissance vocale disponible sur Chrome et Edge.');return;}
   if(isListening){recognition?.stop();isListening=false;updateMicBtn(false);return;}
   recognition=new SR(); recognition.lang=LANGS[currentLang]||'fr-FR'; recognition.interimResults=true;
   recognition.onresult=e=>{
@@ -618,19 +1290,248 @@ function toggleMic(){
   recognition.onerror=()=>{isListening=false;updateMicBtn(false);};
   recognition.onend=()=>{isListening=false;updateMicBtn(false);};
   isListening=true; updateMicBtn(true);
-  appendMsg('aria','🎤 Je vous écoute...');
+  const listeningMsg='Systèmes d\'écoute activés. Je vous entends.';
+  appendMsg('aria',listeningMsg); speak(listeningMsg);
   recognition.start();
 }
-function updateMicBtn(active){ document.getElementById('mic-btn').style.color=active?'var(--red)':''; }
+function updateMicBtn(active){
+  const btn=document.getElementById('mic-btn');
+  if(btn){ btn.style.color=active?'var(--red)':''; btn.style.boxShadow=active?'0 0 15px var(--red)':''; }
+  document.querySelectorAll('.wave-bar').forEach(w=>active?w.classList.remove('inactive'):w.classList.add('inactive'));
+}
 
 // ── INIT ──
 (function(){
-  const theme=localStorage.getItem('aria-theme')||'dark';
-  isDark=theme==='dark'; applyTheme();
   const lang=localStorage.getItem('aria-lang')||'fr';
   currentLang=lang; document.getElementById('lang-select').value=lang;
   loadProfile(); loadTasks(); applyI18n();
+  // Message de bienvenue vocal après 1s
+  setTimeout(()=>{
+    speak('Bonjour. Systèmes ARIA opérationnels. Je suis prêt à vous assister.');
+  },1000);
 })();
+
+// ── VOIX — état global ──
+let voiceEnabled = true;
+let voiceGender = localStorage.getItem('aria-voice-gender') || 'feminine';
+let customAudioBlob = null;
+let customAudioURL = null;
+
+function toggleVoiceBtn() {
+  voiceEnabled = !voiceEnabled;
+  const btn = document.getElementById('voice-toggle-btn');
+  if (voiceEnabled) {
+    btn.textContent = '🔊 VOIX ON';
+    btn.style.borderColor = 'var(--cyan)';
+    btn.style.color = 'var(--cyan)';
+  } else {
+    btn.textContent = '🔇 VOIX OFF';
+    btn.style.borderColor = 'var(--text3)';
+    btn.style.color = 'var(--text3)';
+    window.speechSynthesis.cancel();
+  }
+}
+
+function openVoiceLibrary() {
+  buildVoiceList();
+  document.getElementById('voice-modal').classList.add('open');
+  updateGenderButtons();
+  document.getElementById('voice-rate-modal').value = parseFloat(localStorage.getItem('aria-voice-rate') || '0.9');
+  document.getElementById('rate-val').textContent = document.getElementById('voice-rate-modal').value;
+  document.getElementById('voice-pitch-modal').value = parseFloat(localStorage.getItem('aria-voice-pitch') || '1.0');
+  document.getElementById('pitch-val').textContent = document.getElementById('voice-pitch-modal').value;
+}
+
+function closeVoiceLibrary() {
+  document.getElementById('voice-modal').classList.remove('open');
+}
+
+function buildVoiceList() {
+  const voices = window.speechSynthesis.getVoices();
+  const list = document.getElementById('voice-list');
+  list.innerHTML = '';
+  const saved = localStorage.getItem('aria-voice-name');
+
+  voices.forEach((v, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'hbtn';
+    btn.style.cssText = 'text-align:left;padding:6px 10px;font-size:10px;width:100%;' + (v.name === saved ? 'border-color:var(--cyan);color:var(--cyan);' : '');
+    btn.innerHTML = `<span style="color:var(--cyan);margin-right:6px;">${v.lang}</span>${v.name}${v.default?' ★':''}`;
+    btn.onclick = () => {
+      selectedVoice = v;
+      localStorage.setItem('aria-voice-name', v.name);
+      list.querySelectorAll('button').forEach(b => { b.style.borderColor=''; b.style.color=''; });
+      btn.style.borderColor = 'var(--cyan)'; btn.style.color = 'var(--cyan)';
+      // Test rapide
+      const utt = new SpeechSynthesisUtterance('Voix sélectionnée.');
+      utt.voice = v; utt.rate = 0.9; utt.pitch = 1;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utt);
+    };
+    list.appendChild(btn);
+  });
+
+  if (voices.length === 0) {
+    list.innerHTML = '<div style="color:var(--text3);font-family:Share Tech Mono,monospace;font-size:11px;padding:8px;">Aucune voix système détectée.</div>';
+  }
+}
+
+function setVoiceGender(gender) {
+  voiceGender = gender;
+  localStorage.setItem('aria-voice-gender', gender);
+  updateGenderButtons();
+  // Sélectionne automatiquement la meilleure voix
+  const voices = window.speechSynthesis.getVoices();
+  let best = null;
+  if (gender === 'feminine') {
+    best = voices.find(v => v.lang.startsWith('fr') && (v.name.toLowerCase().includes('amelie') || v.name.toLowerCase().includes('marie') || v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('fem')));
+    if (!best) best = voices.find(v => v.lang.startsWith('fr'));
+  } else if (gender === 'masculine') {
+    best = voices.find(v => v.lang.startsWith('fr') && (v.name.toLowerCase().includes('thomas') || v.name.toLowerCase().includes('nicolas') || v.name.toLowerCase().includes('male')));
+    if (!best) best = voices.find(v => v.lang.startsWith('fr'));
+  } else {
+    best = voices.find(v => v.lang.startsWith('fr')) || voices[0];
+  }
+  if (best) { selectedVoice = best; localStorage.setItem('aria-voice-name', best.name); }
+  buildVoiceList();
+}
+
+function updateGenderButtons() {
+  ['feminine','masculine','any'].forEach(g => {
+    const btn = document.getElementById('btn-' + g);
+    if (!btn) return;
+    if (g === voiceGender) {
+      btn.style.borderColor = 'var(--cyan)'; btn.style.color = 'var(--cyan)';
+    } else {
+      btn.style.borderColor = ''; btn.style.color = '';
+    }
+  });
+}
+
+function applyVoiceSettings() {
+  const rate = document.getElementById('voice-rate-modal').value;
+  const pitch = document.getElementById('voice-pitch-modal').value;
+  localStorage.setItem('aria-voice-rate', rate);
+  localStorage.setItem('aria-voice-pitch', pitch);
+  closeVoiceLibrary();
+  const msg = 'Paramètres vocaux appliqués.';
+  appendMsg('aria', msg); speak(msg);
+}
+
+function handleVoiceUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  customAudioBlob = file;
+  customAudioURL = URL.createObjectURL(file);
+  document.getElementById('upload-name').textContent = '✓ ' + file.name;
+  document.getElementById('test-custom-btn').style.display = 'block';
+}
+
+function testCustomVoice() {
+  if (!customAudioURL) return;
+  const audio = new Audio(customAudioURL);
+  audio.play();
+}
+
+// Override speak() pour prendre en compte tous les nouveaux paramètres
+function speak(text) {
+  if (!voiceEnabled) return;
+
+  // Si voix custom uploadée, jouer l'audio custom
+  if (customAudioURL) {
+    const audio = new Audio(customAudioURL);
+    audio.play();
+    return;
+  }
+
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+
+  const clean = text.replace(/<[^>]*>/g,'').replace(/[◈◉◎▶⊕]/g,'').trim();
+  const utt = new SpeechSynthesisUtterance(clean);
+  utt.lang = currentLang === 'fr' ? 'fr-FR' : currentLang === 'en' ? 'en-GB' : currentLang + '-' + currentLang.toUpperCase();
+  utt.rate = parseFloat(localStorage.getItem('aria-voice-rate') || '0.9');
+  utt.pitch = parseFloat(localStorage.getItem('aria-voice-pitch') || '1.0');
+  utt.volume = 1;
+  if (selectedVoice) utt.voice = selectedVoice;
+
+  const core = document.getElementById('aria-core');
+  const waves = document.querySelectorAll('.wave-bar');
+  utt.onstart = () => { core?.classList.add('speaking'); waves.forEach(w => w.classList.remove('inactive')); };
+  utt.onend = () => { core?.classList.remove('speaking'); waves.forEach(w => w.classList.add('inactive')); };
+  window.speechSynthesis.speak(utt);
+}
+
+// Init date badge dynamique
+document.getElementById('today-badge').textContent =
+  '// SESSION INITIALISÉE · ' + new Date().toLocaleDateString('fr-FR', {day:'2-digit',month:'2-digit',year:'numeric'});
+
+// Init voix selon préférence sauvegardée
+window.speechSynthesis.onvoiceschanged = () => {
+  const savedName = localStorage.getItem('aria-voice-name');
+  const voices = window.speechSynthesis.getVoices();
+  if (savedName) {
+    selectedVoice = voices.find(v => v.name === savedName) || null;
+  }
+  if (!selectedVoice) setVoiceGender(voiceGender);
+};
+
 </script>
+
+<!-- MODAL BIBLIOTHÈQUE DE VOIX -->
+<div class="modal-overlay" id="voice-modal">
+  <div class="modal" style="width:480px;max-width:95vw;">
+    <h3>◈ BIBLIOTHÈQUE DE VOIX</h3>
+
+    <!-- Voix système -->
+    <div style="margin-bottom:16px;">
+      <div class="form-label" style="margin-bottom:8px;">VOIX SYSTÈME DISPONIBLES</div>
+      <div id="voice-list" style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
+    </div>
+
+    <!-- Préférence genre -->
+    <div style="margin-bottom:16px;">
+      <div class="form-label" style="margin-bottom:8px;">GENRE VOCAL PRÉFÉRÉ</div>
+      <div style="display:flex;gap:8px;">
+        <button class="hbtn" id="btn-feminine" onclick="setVoiceGender('feminine')" style="flex:1;border-color:var(--cyan);color:var(--cyan);">♀ FÉMININE</button>
+        <button class="hbtn" id="btn-masculine" onclick="setVoiceGender('masculine')" style="flex:1;">♂ MASCULINE</button>
+        <button class="hbtn" id="btn-any" onclick="setVoiceGender('any')" style="flex:1;">⚡ AUTO</button>
+      </div>
+    </div>
+
+    <!-- Test voix -->
+    <div style="margin-bottom:16px;">
+      <div class="form-label" style="margin-bottom:8px;">PARAMÈTRES</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <span class="form-label" style="margin:0;min-width:60px;">VITESSE</span>
+        <input type="range" min="0.5" max="1.5" step="0.1" value="0.9" id="voice-rate-modal" style="flex:1;accent-color:var(--cyan);" oninput="document.getElementById('rate-val').textContent=this.value">
+        <span class="ts" id="rate-val" style="min-width:24px;">0.9</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="form-label" style="margin:0;min-width:60px;">GRAVE</span>
+        <input type="range" min="0.5" max="2" step="0.1" value="1" id="voice-pitch-modal" style="flex:1;accent-color:var(--cyan);" oninput="document.getElementById('pitch-val').textContent=this.value">
+        <span class="ts" id="pitch-val" style="min-width:24px;">1.0</span>
+      </div>
+    </div>
+
+    <!-- Upload voix custom -->
+    <div style="margin-bottom:16px;">
+      <div class="form-label" style="margin-bottom:8px;">VOIX PERSONNALISÉE (upload MP3)</div>
+      <div style="border:1px dashed var(--border2);border-radius:4px;padding:12px;text-align:center;cursor:pointer;" onclick="document.getElementById('voice-upload').click()">
+        <div style="color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:11px;">⊕ CLIQUER POUR IMPORTER UN FICHIER AUDIO</div>
+        <div style="color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:9px;margin-top:4px;">MP3, WAV, OGG supportés</div>
+        <div id="upload-name" style="color:var(--cyan);font-size:10px;margin-top:6px;font-family:'Share Tech Mono',monospace;"></div>
+      </div>
+      <input type="file" id="voice-upload" accept="audio/*" style="display:none;" onchange="handleVoiceUpload(this)">
+      <button class="hbtn" id="test-custom-btn" onclick="testCustomVoice()" style="display:none;margin-top:8px;width:100%;text-align:center;">[ TESTER LA VOIX UPLOADÉE ]</button>
+    </div>
+
+    <div class="modal-footer">
+      <button class="cancel-btn" onclick="closeVoiceLibrary()">[ FERMER ]</button>
+      <button class="save-btn" onclick="applyVoiceSettings()">[ APPLIQUER ]</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
