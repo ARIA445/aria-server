@@ -252,8 +252,19 @@ body::after {
   transition: background 0.15s; font-size: 11px;
   border: 1px solid transparent;
   font-family: 'Share Tech Mono', monospace;
+  flex-wrap: wrap;
 }
 .task-item:hover { background: var(--surface); border-color: var(--border); }
+.task-item:hover .task-delete { opacity: 1; }
+.task-time { font-size: 9px; color: var(--cyan); letter-spacing: 0.05em; margin-top: 2px; width: 100%; padding-left: 21px; }
+.task-delete {
+  width: 16px; height: 16px; border-radius: 2px; border: 1px solid rgba(255,59,59,0.3);
+  background: transparent; color: var(--red); cursor: pointer; font-size: 10px;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.15s; flex-shrink: 0; margin-top: 1px;
+  font-family: monospace; line-height: 1;
+}
+.task-delete:hover { background: rgba(255,59,59,0.15); border-color: var(--red); }
 .task-check {
   width: 13px; height: 13px; border-radius: 2px;
   border: 1px solid var(--border2); flex-shrink: 0; margin-top: 1px;
@@ -1101,7 +1112,7 @@ function scheduleNotification(text,timeStr){
 
 // ── CLAUDE API ──
 const conversationHistory=[];
-const BACKEND_URL="http://localhost:3000";
+const BACKEND_URL = window.location.origin;  // Fonctionne en local ET en production automatiquement
 
 function buildSystem(){
   const n=profile.name?`L'utilisateur s'appelle ${profile.name}.`:'';
@@ -1145,9 +1156,9 @@ Tâches : aucune tâche enregistrée pour le moment.
 
 Si l'utilisateur mentionne une tâche ou rappel précis, termine ta réponse par :
 <<<ACTIONS>>>
-{"tasks":[{"text":"nom","tag":"urgent|work|perso"}],"reminders":[{"text":"texte","time":"HH:MM"}]}
+{"tasks":[{"text":"nom","tag":"urgent|work|perso","timeStart":"HH:MM ou vide","timeEnd":"HH:MM ou vide"}],"reminders":[{"text":"texte","time":"HH:MM"}]}
 <<<END>>>
-N'inclus ce bloc QUE si une vraie tâche ou rappel est demandé.`;
+N'inclus ce bloc QUE si une vraie tâche ou rappel est demandé. Extrait les heures de début et fin si mentionnées.`;
 }
 
 
@@ -1156,7 +1167,7 @@ function parseActions(reply){
   if(!m) return reply;
   try{
     const a=JSON.parse(m[1].trim());
-    (a.tasks||[]).forEach(t=>{addTaskToDOM(t.text,t.tag||'perso');saveTasks();});
+    (a.tasks||[]).forEach(t=>{addTaskToDOM(t.text,t.tag||'perso',false,t.timeStart||'',t.timeEnd||'');saveTasks();});
     (a.reminders||[]).forEach(async r=>{scheduleNotification(r.text,r.time);await requestNotifPermission();});
   }catch(e){}
   return reply.replace(/<<<ACTIONS>>>[\s\S]*?<<<END>>>/,'').trim();
@@ -1245,33 +1256,88 @@ function loadTasks(){
     document.getElementById('task-list').innerHTML='';
     if(!s.length){
       // Aucune tâche par défaut — liste vierge au démarrage
-    } else s.forEach(t=>addTaskToDOM(t.text,t.tag,t.done));
+    } else s.forEach(t=>addTaskToDOM(t.text,t.tag,t.done,t.timeStart||'',t.timeEnd||''));
   }catch(e){}
 }
 function saveTasks(){
   try{
-    const items=[...document.querySelectorAll('.task-item')].map(i=>({
-      text:i.querySelector('.task-text').textContent,
-      tag:i.querySelector('.task-tag').classList.contains('tag-urgent')?'urgent':i.querySelector('.task-tag').classList.contains('tag-work')?'work':'perso',
-      done:i.querySelector('.task-check').classList.contains('done')
-    }));
+    const items=[...document.querySelectorAll('.task-item')].map(i=>{
+      const timeEl = i.querySelector('.task-time');
+      let timeStart = '', timeEnd = '';
+      if(timeEl) {
+        const t = timeEl.textContent.replace('⏱','').trim();
+        if(t.includes('→')) { [timeStart, timeEnd] = t.split('→').map(s=>s.trim()); }
+        else if(t.startsWith('DÉBUT')) { timeStart = t.replace('DÉBUT','').trim(); }
+        else if(t.startsWith('FIN')) { timeEnd = t.replace('FIN','').trim(); }
+      }
+      return {
+        text: i.querySelector('.task-text').textContent,
+        tag: i.querySelector('.task-tag').classList.contains('tag-urgent')?'urgent':i.querySelector('.task-tag').classList.contains('tag-work')?'work':'perso',
+        done: i.querySelector('.task-check').classList.contains('done'),
+        timeStart, timeEnd
+      };
+    });
     localStorage.setItem(TK,JSON.stringify(items));
   }catch(e){}
 }
-function addTaskToDOM(text,tag='perso',done=false){
-  const list=document.getElementById('task-list');
-  const item=document.createElement('div'); item.className='task-item';
-  const tl=tag==='urgent'?'URGENT':tag==='work'?'TRAVAIL':'PERSO';
-  item.innerHTML=`<div class="task-check${done?' done':''}" onclick="toggleTask(this)">${done?'✓':''}</div><div class="task-text${done?' done':''}">${text}</div><div class="task-tag tag-${tag}">${tl}</div>`;
+function addTaskToDOM(text, tag='perso', done=false, timeStart='', timeEnd=''){
+  const list = document.getElementById('task-list');
+  const item = document.createElement('div');
+  item.className = 'task-item';
+  const tl = tag==='urgent'?'URGENT':tag==='work'?'TRAVAIL':'PERSO';
+  const timeStr = timeStart && timeEnd ? `${timeStart} → ${timeEnd}`
+                : timeStart ? `DÉBUT ${timeStart}`
+                : timeEnd ? `FIN ${timeEnd}` : '';
+  item.innerHTML = `
+    <div class="task-check${done?' done':''}" onclick="toggleTask(this)">${done?'✓':''}</div>
+    <div class="task-text${done?' done':''}">${text}</div>
+    <div class="task-tag tag-${tag}">${tl}</div>
+    <button class="task-delete" onclick="deleteTask(this)" title="Supprimer">✕</button>
+    ${timeStr ? `<div class="task-time">⏱ ${timeStr}</div>` : ''}
+  `;
   list.appendChild(item);
+  // Planifier rappel si heure de début
+  if(timeStart && !done) scheduleTaskReminder(text, timeStart, timeEnd);
+}
+
+function deleteTask(btn) {
+  if(confirm('Supprimer cette tâche ?')) {
+    btn.closest('.task-item').remove();
+    saveTasks();
+  }
+}
+
+function scheduleTaskReminder(text, timeStart, timeEnd) {
+  const [h,m] = timeStart.split(':').map(Number);
+  const now = new Date(), target = new Date();
+  target.setHours(h, m, 0, 0);
+  if(target <= now) return; // Déjà passé aujourd'hui
+  const delay = target - now;
+  setTimeout(async () => {
+    const endStr = timeEnd ? ` jusqu'à ${timeEnd}` : '';
+    const msg = `Rappel : "${text}" commence maintenant${endStr}.`;
+    if(await requestNotifPermission()) {
+      new Notification('◈ ARIA — TÂCHE', { body: msg });
+    } else {
+      appendMsg('aria', `⏱ ${msg}`);
+    }
+    speak(msg);
+  }, delay);
 }
 function toggleTask(el){
   el.classList.toggle('done'); el.textContent=el.classList.contains('done')?'✓':'';
   el.nextElementSibling.classList.toggle('done'); saveTasks();
 }
 function addTask(){
-  const n=prompt('ARIA // NOUVELLE TÂCHE :'); if(!n) return;
-  addTaskToDOM(n,'perso'); saveTasks();
+  const n = prompt('ARIA // NOUVELLE TÂCHE :\nNom de la tâche :');
+  if(!n) return;
+  const tags = ['perso','work','urgent'];
+  const tagChoice = prompt('CATÉGORIE :\n0 = PERSO\n1 = TRAVAIL\n2 = URGENT\n(tapez 0, 1 ou 2)') || '0';
+  const tag = tags[parseInt(tagChoice)] || 'perso';
+  const timeStart = prompt('HEURE DE DÉBUT ? (ex: 09:00) — Laissez vide si pas d\'heure') || '';
+  const timeEnd = prompt('HEURE DE FIN ? (ex: 10:30) — Laissez vide si pas d\'heure') || '';
+  addTaskToDOM(n, tag, false, timeStart, timeEnd);
+  saveTasks();
 }
 
 // ── MICROPHONE ──
