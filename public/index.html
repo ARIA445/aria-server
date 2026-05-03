@@ -1284,14 +1284,65 @@ function scheduleNotification(text,timeStr){
   if(scheduledReminders.has(key)) return;
   scheduledReminders.add(key);
   const [h,m]=timeStr.split(':').map(Number);
+  if(isNaN(h)||isNaN(m)) return;
   const now=new Date(),target=new Date();
   target.setHours(h,m,0,0);
   if(target<=now) target.setDate(target.getDate()+1);
+  const delay = target-now;
+  const mins = Math.round(delay/60000);
+  console.log(`Rappel planifié: "${text}" dans ${mins} min (${timeStr})`);
+
+  // 2 jours avant
+if (delay > 2 * 24 * 60 * 60000) {
+  setTimeout(async () => {
+    const msg = `Dans 2 jours : ${text}.`;
+    playNotificationSound();
+    if (await requestNotifPermission()) {
+      new Notification('◈ ARIA — RAPPEL', { body: msg });
+    }
+    appendMsg('aria', `📅 ${msg}`);
+    speak(msg);
+  }, delay - 2 * 24 * 60 * 60000);
+}
+
+// 2 heures avant
+if (delay > 2 * 60 * 60000) {
+  setTimeout(async () => {
+    const msg = `Dans 2 heures : ${text}.`;
+    playNotificationSound();
+    if (await requestNotifPermission()) {
+      new Notification('◈ ARIA — BIENTÔT', { body: msg });
+    }
+    appendMsg('aria', `⏱ ${msg}`);
+    speak(msg);
+  }, delay - 2 * 60 * 60000);
+}
+
+// 5 minutes avant (ton code existant)
+if (delay > 5 * 60000) {
+  setTimeout(async () => {
+    const msg5 = `Dans 5 minutes : ${text}.`;
+    playNotificationSound();
+    if (await requestNotifPermission()) {
+      new Notification('◈ ARIA — BIENTÔT', { body: msg5 });
+    }
+    appendMsg('aria', `⏱ ${msg5}`);
+    speak(msg5);
+  }, delay - 5 * 60000);
+};
+  }
+
   setTimeout(async()=>{
-    if(await requestNotifPermission()) new Notification('◈ ARIA — RAPPEL', {body:text});
-    else { appendMsg('aria',`⏰ RAPPEL SYSTÈME : ${text}`); speak(`Rappel : ${text}`); }
+    const msg = `Rappel : ${text}`;
+    playNotificationSound();
+    if(await requestNotifPermission()) {
+      new Notification('◈ ARIA — RAPPEL', {body:msg, requireInteraction:true});
+    }
+    appendMsg('aria',`🔔 ${msg}`);
+    speak(msg);
     scheduledReminders.delete(key);
-  }, target-now);
+    document.getElementById('stat-reminders').textContent = scheduledReminders.size + 3;
+  }, delay);
 }
 
 // ── CLAUDE API ──
@@ -1549,21 +1600,67 @@ function deleteTask(btn) {
 }
 
 function scheduleTaskReminder(text, timeStart, timeEnd) {
+  if(!timeStart) return;
   const [h,m] = timeStart.split(':').map(Number);
+  if(isNaN(h) || isNaN(m)) return;
   const now = new Date(), target = new Date();
   target.setHours(h, m, 0, 0);
-  if(target <= now) return; // Déjà passé aujourd'hui
+  if(target <= now) {
+    console.log(`Rappel "${text}" déjà passé aujourd'hui (${timeStart})`);
+    return;
+  }
   const delay = target - now;
+  const mins = Math.round(delay / 60000);
+  console.log(`Rappel planifié: "${text}" dans ${mins} minutes (${timeStart})`);
+
+  // Rappel 5 minutes avant
+  if(delay > 5 * 60000) {
+    setTimeout(async () => {
+      const msg5 = `Dans 5 minutes : "${text}" commence à ${timeStart}.`;
+      playNotificationSound();
+      if(await requestNotifPermission()) {
+        new Notification('◈ ARIA — RAPPEL 5 MIN', { body: msg5, icon: '' });
+      }
+      appendMsg('aria', `⏱ ${msg5}`);
+      speak(msg5);
+    }, delay - 5 * 60000);
+  }
+
+  // Rappel à l'heure exacte
   setTimeout(async () => {
     const endStr = timeEnd ? ` jusqu'à ${timeEnd}` : '';
-    const msg = `Rappel : "${text}" commence maintenant${endStr}.`;
+    const msg = `Attention ${profile.name ? profile.name + ' !' : '!'} La tâche "${text}" commence maintenant${endStr}.`;
+    playNotificationSound();
     if(await requestNotifPermission()) {
-      new Notification('◈ ARIA — TÂCHE', { body: msg });
-    } else {
-      appendMsg('aria', `⏱ ${msg}`);
+      new Notification('◈ ARIA — TÂCHE EN COURS', {
+        body: msg,
+        requireInteraction: true
+      });
     }
+    appendMsg('aria', `🔔 ${msg}`);
     speak(msg);
   }, delay);
+}
+
+function playNotificationSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // Son de notification style Jarvis
+    const notes = [880, 1100, 1320];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.15);
+      gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + i * 0.15 + 0.05);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + i * 0.15 + 0.2);
+      osc.start(ctx.currentTime + i * 0.15);
+      osc.stop(ctx.currentTime + i * 0.15 + 0.25);
+    });
+  } catch(e) { console.warn('Audio non disponible:', e); }
 }
 function toggleTask(el){
   el.classList.toggle('done'); el.textContent=el.classList.contains('done')?'✓':'';
@@ -1616,6 +1713,16 @@ function updateMicBtn(active){
   const lang=localStorage.getItem('aria-lang')||'fr';
   currentLang=lang; document.getElementById('lang-select').value=lang;
   loadProfile(); loadTasks(); applyI18n();
+
+  // Demander permission notifications au démarrage
+  if('Notification' in window && Notification.permission === 'default') {
+    setTimeout(() => {
+      Notification.requestPermission().then(perm => {
+        console.log('Notifications:', perm);
+      });
+    }, 2000);
+  }
+
   // Message de bienvenue vocal après 1s
   setTimeout(()=>{
     speak('Bonjour. Systèmes ARIA opérationnels. Je suis prêt à vous assister.');
