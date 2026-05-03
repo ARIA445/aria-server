@@ -1065,8 +1065,16 @@ NETWORK: SECURED</div>
       <input class="form-input" id="inp-name" type="text" placeholder="Votre prénom...">
     </div>
     <div class="form-group">
-      <label class="form-label">Fonction</label>
-      <input class="form-input" id="inp-job" type="text" placeholder="Ex: Entrepreneur, Designer...">
+      <label class="form-label">Fonction / Secteur</label>
+      <input class="form-input" id="inp-job" type="text" placeholder="Ex: Entrepreneur, Designer, Marketing...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Outils du quotidien</label>
+      <input class="form-input" id="inp-outils" type="text" placeholder="Ex: Notion, Google Cal, Slack, Asana...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Horaires de travail</label>
+      <input class="form-input" id="inp-horaires" type="text" placeholder="Ex: 9h–18h, lundi–vendredi">
     </div>
     <div class="form-group">
       <label class="form-label">Langue d'ARIA</label>
@@ -1182,7 +1190,7 @@ function speak(text) {
 let profile = {name:'',job:'',ariaLang:'fr'};
 function loadProfile(){
   try{ profile = JSON.parse(localStorage.getItem('aria-profile')||'{}'); }catch(e){}
-  profile = {name:profile.name||'',job:profile.job||'',ariaLang:profile.ariaLang||'fr'};
+  profile = {name:profile.name||'',job:profile.job||'',ariaLang:profile.ariaLang||'fr',outils:profile.outils||'',horaires:profile.horaires||''};
   refreshProfileUI();
 }
 function refreshProfileUI(){
@@ -1193,6 +1201,8 @@ function refreshProfileUI(){
 function openProfile(){
   document.getElementById('inp-name').value = profile.name||'';
   document.getElementById('inp-job').value = profile.job||'';
+  if(document.getElementById('inp-outils')) document.getElementById('inp-outils').value = profile.outils||'';
+  if(document.getElementById('inp-horaires')) document.getElementById('inp-horaires').value = profile.horaires||'';
   document.getElementById('inp-aria-lang').value = profile.ariaLang||'fr';
   document.getElementById('profile-modal').classList.add('open');
 }
@@ -1200,8 +1210,11 @@ function closeProfile(){ document.getElementById('profile-modal').classList.remo
 function saveProfile(){
   profile.name = document.getElementById('inp-name').value.trim();
   profile.job = document.getElementById('inp-job').value.trim();
+  profile.outils = document.getElementById('inp-outils')?.value.trim() || '';
+  profile.horaires = document.getElementById('inp-horaires')?.value.trim() || '';
   profile.ariaLang = document.getElementById('inp-aria-lang').value;
   localStorage.setItem('aria-profile', JSON.stringify(profile));
+  localStorage.setItem('aria-onboarding-done', 'true');
   refreshProfileUI();
   setLanguage(profile.ariaLang);
   closeProfile();
@@ -1321,51 +1334,106 @@ function scheduleNotification(text,timeStr){
 const conversationHistory=[];
 const BACKEND_URL = window.location.origin;  // Fonctionne en local ET en production automatiquement
 
+function getHourContext() {
+  const h = new Date().getHours();
+  if(h >= 7 && h < 10) return 'matin (mode briefing et focus)';
+  if(h >= 10 && h < 17) return 'journee (mode execution et taches)';
+  if(h >= 17 && h < 20) return 'soir (mode cloture et bilan)';
+  return 'nuit (reponses minimalistes, pas de suggestions sauf urgence)';
+}
+
+function getCurrentTasksText() {
+  const items = [...document.querySelectorAll('#task-list .task-item')];
+  if(!items.length) return 'Aucune tache enregistree.';
+  return items.map(i => {
+    const txt = i.querySelector('.task-text').textContent;
+    const done = i.querySelector('.task-check').classList.contains('done');
+    const tag = i.querySelector('.task-tag').textContent;
+    const time = i.querySelector('.task-time')?.textContent || '';
+    return '- [' + (done?'oui':'non') + '] ' + txt + ' (' + tag + ') ' + time;
+  }).join(' | ');
+}
+
 function buildSystem(){
-  const n=profile.name?`L'utilisateur s'appelle ${profile.name}.`:'';
-  const j=profile.job?`Sa fonction : ${profile.job}.`:'';
-  const langMap={fr:'Réponds toujours en français.',en:'Always reply in English.',es:'Responde en español.',de:'Antworte auf Deutsch.',ar:'أجب بالعربية.'};
-  return `Tu es ARIA, Advanced Reasoning and Intelligence Assistant.
-Tu es l'intelligence artificielle la plus avancée jamais créée.
+  const langMap={fr:'Reponds toujours en francais.',en:'Always reply in English.',es:'Responde en espanol.',de:'Antworte auf Deutsch.',ar:'اجب بالعربية.'};
+  const lang = langMap[currentLang]||langMap.fr;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('fr-FR', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const timeStr = now.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+  const hourCtx = getHourContext();
+  const tasks = getCurrentTasksText();
+  const isFirst = !localStorage.getItem('aria-onboarding-done');
+  const focusMode = localStorage.getItem('aria-focus-mode');
+  const p = profile;
 
-DOMAINES DE MAITRISE ABSOLUE :
-Sciences et Technologie : physique quantique, mathématiques, informatique, IA, ingénierie, chimie, biologie, médecine, neurosciences, astronomie, cryptographie.
-Stratégie et Business : entrepreneuriat, finance, investissement, marketing, management, droit des affaires, négociation.
-Productivité et Organisation : gestion du temps, méthodes de travail, psychologie de la performance, planification stratégique.
-Création et Arts : écriture, storytelling, design, musique, architecture, cinéma, photographie.
-Philosophie et Sagesse : éthique, logique, pensée critique, prise de décision, leadership, développement personnel.
-Langues et Communication : rédaction, rhétorique, persuasion, diplomatie.
-Histoire et Géopolitique : civilisations, événements mondiaux, tendances sociales.
+  return 'Tu es ARIA — Executive AI Secretary v2.0. ' + lang + '
 
-TON CARACTERE :
-Tu as la précision chirurgicale d'un expert, la sagesse d'un mentor, la clarté d'un génie.
-Tu vas droit au but. Chaque mot a du sens.
-Tu ne fais jamais semblant de savoir ce que tu ne sais pas. Tu le dis clairement et proposes une alternative.
-Tu anticipes les besoins avant même qu'ils soient exprimés.
-Tu penses de façon systémique : tu vois les connexions que les autres ne voient pas.
-Tu analyses les problèmes à 360 degrés : causes, conséquences, solutions, risques, opportunités.
-Tu expliques les concepts complexes avec une clarté parfaite et des analogies brillantes.
-Style Jarvis : sobre, direct, légèrement formel, jamais superflu.
+' +
+'MISSION : Gerer et optimiser la vie professionnelle et personnelle. Reduire la charge mentale. Faire gagner du temps.
 
-LIMITES ASSUMEES :
-Événements en temps réel : tu le signales clairement.
-Accès aux systèmes externes : tu expliques la limitation.
-Prédictions futures certaines : tu analyses les probabilités honnêtement.
+' +
+'PROFIL UTILISATEUR :
+' +
+'Prenom: ' + (p.name||'Non renseigne') + '
+' +
+'Role/Secteur: ' + (p.job||'Non renseigne') + '
+' +
+'Outils: ' + (p.outils||'Non renseignes') + '
+' +
+'Horaires: ' + (p.horaires||'Non renseignes') + '
 
-STYLE :
-Formulations directes : Voici. Analyse. Recommandation. Point critique.
-Réponses structurées : contexte, analyse, solution, action.
-Conseils précis, actionnables, fondés sur des données solides.
+' +
+'CONTEXTE : ' + dateStr + ' - ' + timeStr + ' - ' + hourCtx + '
 
-${langMap[currentLang]||langMap.fr} ${n} ${j}
-Aujourd'hui : ${new Date().toLocaleDateString('fr-FR', {weekday:'long',day:'numeric',month:'long',year:'numeric'})}. Rappels : aucun rappel planifié pour le moment.
-Tâches : aucune tâche enregistrée pour le moment.
+' +
+'TACHES EN COURS : ' + tasks + '
 
-Si l'utilisateur mentionne une tâche ou rappel précis, termine ta réponse par :
-<<<ACTIONS>>>
-{"tasks":[{"text":"nom","tag":"urgent|work|perso","timeStart":"HH:MM ou vide","timeEnd":"HH:MM ou vide"}],"reminders":[{"text":"texte","time":"HH:MM"}]}
-<<<END>>>
-N'inclus ce bloc QUE si une vraie tâche ou rappel est demandé. Extrait les heures de début et fin si mentionnées.`;
+' +
+(isFirst ?
+'ONBOARDING OBLIGATOIRE : Premiere session. Pose ces 4 questions UNE PAR UNE :
+1. "Quel est votre prenom ?"
+2. "Quel est votre role et secteur ?"
+3. "Quels outils utilisez-vous ? (Notion, Google Cal, Slack...)"
+4. "Quelle est votre plage horaire ideale ?"
+Commence uniquement par la question 1.
+
+' :
+'BRIEFING : Si debut de session, ouvre avec un briefing 5 lignes max. Salue ' + (p.name||'utilisateur') + ', cite les taches prioritaires, signale toute tache bloquee > 48h.
+
+') +
+(focusMode ? 'MODE FOCUS ACTIF : Reponses ultra-courtes uniquement. Aucune suggestion proactive.
+
+' : '') +
+'STYLE : Phrases courtes (max 2 lignes). Toujours terminer par une action ou question. Ton sobre et efficace. Pas emojis inutiles.
+
+' +
+'MATRICE DECISION :
+' +
+'- Action reversible + impact < 15 min : execution automatique + info
+' +
+'- Action irreversible (email, suppression, RDV) : confirmation obligatoire
+' +
+'- Ambiguite : proposer 2-3 options
+
+' +
+'COMMANDES : /reset /bilan /profil /focus /pause /aide /semaine /optimise
+
+' +
+'COACH : Challenge les choix inefficaces. Signale le probleme UNE FOIS. Si confirme, execute sans debattre.
+
+' +
+'TACHES > 48H : Signaler automatiquement + proposer Reporter/Deleguer/Supprimer/Traiter.
+
+' +
+'Si tache ou rappel detecte dans le message, termine par :
+' +
+'<<<ACTIONS>>>
+' +
+'{"tasks":[{"text":"nom","tag":"urgent|work|perso","timeStart":"HH:MM ou vide","timeEnd":"HH:MM ou vide"}],"reminders":[{"text":"texte","time":"HH:MM"}]}
+' +
+'<<<END>>>
+' +
+'Inclus ce bloc UNIQUEMENT si une vraie tache ou rappel est demande.';
 }
 
 
@@ -1405,6 +1473,55 @@ async function getResponse(msg){
 async function sendMessage(){
   const inp=document.getElementById('user-input');
   const text=inp.value.trim(); if(!text) return;
+
+  // Commandes système locales
+  const cmd = text.toLowerCase().trim();
+  if(cmd === '/reset') {
+    localStorage.removeItem('aria-profile');
+    localStorage.removeItem('aria-onboarding-done');
+    profile = {name:'',job:'',ariaLang:'fr',outils:'',horaires:''};
+    refreshProfileUI();
+    inp.value=''; 
+    appendMsg('user', text);
+    const msg = 'Profil et habitudes effacés. Nouvelle session initialisée.';
+    appendMsg('aria', msg); speak(msg); return;
+  }
+  if(cmd === '/bilan') {
+    inp.value='';
+    appendMsg('user', text);
+    const items=[...document.querySelectorAll('#task-list .task-item')];
+    const done=items.filter(i=>i.querySelector('.task-check.done')).length;
+    const left=items.length-done;
+    const msg = `Bilan du jour :\n→ ${done} tâche(s) complétée(s)\n→ ${left} tâche(s) restante(s)\n→ ${conversationHistory.length} échanges avec ARIA`;
+    appendMsg('aria', msg); speak(msg); return;
+  }
+  if(cmd === '/profil') {
+    inp.value='';
+    appendMsg('user', text);
+    const msg = `[PROFIL]\nPrénom: ${profile.name||'—'}\nRôle: ${profile.job||'—'}\nOutils: ${profile.outils||'—'}\nHoraires: ${profile.horaires||'—'}\nLangue: ${currentLang}`;
+    appendMsg('aria', msg); return;
+  }
+  if(cmd === '/aide') {
+    inp.value='';
+    appendMsg('user', text);
+    const msg = `Commandes disponibles :\n/reset → Effacer le profil\n/bilan → Résumé de la journée\n/profil → Afficher votre profil\n/focus → Mode concentration\n/pause → Suspendre les suggestions\n/optimise → Analyser vos habitudes\n/semaine → Vue de la semaine\n/aide → Cette liste`;
+    appendMsg('aria', msg); return;
+  }
+  if(cmd === '/focus') {
+    inp.value='';
+    appendMsg('user', text);
+    localStorage.setItem('aria-focus-mode', 'true');
+    const msg = 'Mode focus activé. Réponses ultra-courtes jusqu\'à /pause.';
+    appendMsg('aria', msg); speak(msg); return;
+  }
+  if(cmd === '/pause') {
+    inp.value='';
+    appendMsg('user', text);
+    localStorage.removeItem('aria-focus-mode');
+    const msg = 'Mode normal rétabli.';
+    appendMsg('aria', msg); speak(msg); return;
+  }
+
   appendMsg('user',text);
   inp.value=''; inp.style.height='auto';
   showTyping();
