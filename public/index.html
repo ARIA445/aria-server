@@ -1041,7 +1041,8 @@ NETWORK: SECURED</div>
         </div>
       </div>
     </div>
-  
+  </div>
+
   <!-- MOBILE TASKS PANEL -->
   <div class="panel" id="panel-tasks-mobile">
     <div class="panel-inner">
@@ -1292,44 +1293,15 @@ function scheduleNotification(text,timeStr){
   const mins = Math.round(delay/60000);
   console.log(`Rappel planifié: "${text}" dans ${mins} min (${timeStr})`);
 
-  // 2 jours avant
-if (delay > 2 * 24 * 60 * 60000) {
-  setTimeout(async () => {
-    const msg = `Dans 2 jours : ${text}.`;
-    playNotificationSound();
-    if (await requestNotifPermission()) {
-      new Notification('◈ ARIA — RAPPEL', { body: msg });
-    }
-    appendMsg('aria', `📅 ${msg}`);
-    speak(msg);
-  }, delay - 2 * 24 * 60 * 60000);
-}
-
-// 2 heures avant
-if (delay > 2 * 60 * 60000) {
-  setTimeout(async () => {
-    const msg = `Dans 2 heures : ${text}.`;
-    playNotificationSound();
-    if (await requestNotifPermission()) {
-      new Notification('◈ ARIA — BIENTÔT', { body: msg });
-    }
-    appendMsg('aria', `⏱ ${msg}`);
-    speak(msg);
-  }, delay - 2 * 60 * 60000);
-}
-
-// 5 minutes avant (ton code existant)
-if (delay > 5 * 60000) {
-  setTimeout(async () => {
-    const msg5 = `Dans 5 minutes : ${text}.`;
-    playNotificationSound();
-    if (await requestNotifPermission()) {
-      new Notification('◈ ARIA — BIENTÔT', { body: msg5 });
-    }
-    appendMsg('aria', `⏱ ${msg5}`);
-    speak(msg5);
-  }, delay - 5 * 60000);
-};
+  // Rappel 5 min avant si possible
+  if(delay > 5*60000) {
+    setTimeout(async()=>{
+      const msg5 = `Dans 5 minutes : ${text}.`;
+      playNotificationSound();
+      if(await requestNotifPermission()) new Notification('◈ ARIA — BIENTÔT', {body:msg5});
+      appendMsg('aria', `⏱ ${msg5}`);
+      speak(msg5);
+    }, delay - 5*60000);
   }
 
   setTimeout(async()=>{
@@ -1397,7 +1369,7 @@ N'inclus ce bloc QUE si une vraie tâche ou rappel est demandé. Extrait les heu
 }
 
 
-function parseActions(reply){
+async async function parseActions(reply){
   const m=reply.match(/<<<ACTIONS>>>([\s\S]*?)<<<END>>>/);
   if(!m) return reply;
   try{
@@ -1407,8 +1379,11 @@ function parseActions(reply){
       addTaskToDOM(t.text, t.tag||'perso', false, t.timeStart||'', t.timeEnd||'', cloudId);
       saveTasks();
     }
-    (a.reminders||[]).forEach(async r=>{scheduleNotification(r.text,r.time);await requestNotifPermission();});
-  }catch(e){}
+    for(const r of (a.reminders||[])){
+      scheduleNotification(r.text, r.time);
+      await requestNotifPermission();
+    }
+  }catch(e){ console.error('parseActions error:', e); }
   return reply.replace(/<<<ACTIONS>>>[\s\S]*?<<<END>>>/,'').trim();
 }
 
@@ -1422,7 +1397,7 @@ async function getResponse(msg){
   if(!res.ok) throw new Error();
   const data=await res.json();
   const raw=data.reply;
-  const clean=parseActions(raw);
+  const clean=await parseActions(raw);
   conversationHistory.push({role:"assistant",content:clean});
   return clean;
 }
