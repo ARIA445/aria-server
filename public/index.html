@@ -1369,7 +1369,7 @@ N'inclus ce bloc QUE si une vraie tâche ou rappel est demandé. Extrait les heu
 }
 
 
-async async function parseActions(reply){
+async function parseActions(reply){
   const m=reply.match(/<<<ACTIONS>>>([\s\S]*?)<<<END>>>/);
   if(!m) return reply;
   try{
